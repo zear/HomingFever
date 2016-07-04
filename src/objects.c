@@ -108,13 +108,10 @@ object *objectTemplate(objectType type)
 
 void objectLoad(object *obj, objectType type)
 {
-	object *template;
-
 	if (!obj)
 		return;
 
-	template = objectTemplate(type);
-	memcpy(obj, template, sizeof(object));
+	memcpy(obj, objectTemplate(type), sizeof(object));
 
 	if (obj->type == OBJ_PLAYER)
 		playerLastAngle = obj->angle;
