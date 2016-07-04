@@ -23,6 +23,7 @@ object *objectTemplate(objectType type)
 		curNode = curNode->next;
 	}
 
+	memset(&newObj, 0, sizeof(object));
 	newObj.type = type;
 	newObj.tiles = malloc(sizeof(tileset));
 	memset(newObj.tiles, 0, sizeof(tileset));
@@ -108,22 +109,12 @@ object *objectTemplate(objectType type)
 void objectLoad(object *obj, objectType type)
 {
 	object *template;
+
 	if (!obj)
 		return;
 
-	memset(obj, 0, sizeof(object));
-	obj->type = type;
-
-	template = objectTemplate(obj->type);
-
-	obj->tiles = template->tiles;
-	obj->w = template->w;
-	obj->h = template->h;
-	obj->hitboxW = template->hitboxW;
-	obj->hitboxH = template->hitboxH;
-	obj->ttl = template->ttl;
-	obj->turnSpeed = template->turnSpeed;
-	obj->turnStep = template->turnStep;
+	template = objectTemplate(type);
+	memcpy(obj, template, sizeof(object));
 
 	if (obj->type == OBJ_PLAYER)
 		playerLastAngle = obj->angle;
