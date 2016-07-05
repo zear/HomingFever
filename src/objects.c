@@ -268,14 +268,14 @@ void objectLogic(object *obj)
 			float x = (obj->x + obj->w/2) - (playerObj->x + playerObj->w/2);
 			float y = (obj->y + obj->h/2) - (playerObj->y + playerObj->h/2);
 
-			if (abs(x) > LEVEL_W/2)
+			if (fabsf(x) > LEVEL_W/2)
 			{
 				x = FMODF(x - LEVEL_W, LEVEL_W);
 
 				if (x > LEVEL_W/2)
 					x = (x - LEVEL_W);
 			}
-			if (abs(y) > LEVEL_H/2)
+			if (fabsf(y) > LEVEL_H/2)
 			{
 				y = FMODF(y - LEVEL_H, LEVEL_H);
 
