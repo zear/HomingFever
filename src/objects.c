@@ -204,7 +204,7 @@ void objectLogic(object *obj)
 		{
 			--obj->smoking;
 
-			if (!(gameTime %3))
+			if (!(gameTicks %3))
 			{
 				object newObj;
 
@@ -231,7 +231,7 @@ void objectLogic(object *obj)
 
 		if (inPenaltyRange)
 		{
-			if (++playerPenaltyTimer > PLAYER_PENALTY_TIME)
+			if (!gameOverTimer && (++playerPenaltyTimer > PLAYER_PENALTY_TIME))
 			{
 				int radius = 400 + (rand() % 100);
 				int angle = (obj->angle + 180) % SINE_STEPS;
@@ -349,7 +349,7 @@ void objectLogic(object *obj)
 		obj->vx = -obj->turnSpeed * sineTable[obj->angle];
 		obj->vy = -obj->turnSpeed * sineTable[(obj->angle+90)%SINE_STEPS];
 
-		if (!(gameTime % 3))
+		if (!(gameTicks % 3))
 		{
 			object newObj;
 

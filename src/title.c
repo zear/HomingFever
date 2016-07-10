@@ -123,7 +123,7 @@ void titleDraw()
 	sprintf(text[4][4], "Senquack");
 	sprintf(text[4][5], "Surkow");
 
-	drawBackground(screen);
+	drawBackground(screen, getColor(0, 0, 128));
 
 	for (i = 0; i < SCREEN_W + 16; i += 16)
 	{
@@ -133,7 +133,7 @@ void titleDraw()
 			int x = i % 16;
 			int y = j % 16;
 
-			drawPoint(screen, i - x, j - y);
+			drawPoint(screen, i - x, j - y, getColor(0, 0, 224));
 		}
 	}
 

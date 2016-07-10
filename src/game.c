@@ -10,17 +10,17 @@
 #include "states.h"
 #include "video.h"
 
-#define PLAYER_COOLDOWN_TIME	(60*2)
-
 listElement *objListHead;
 object *playerObj;
 tileset marker;
 int weaponMode;
+int gameTicks;
 int gameTime;
 int bestTime;
 int cooldownTime;
 int playerLastAngle;
 int playerPenaltyTimer;
+int gameOverTimer;
 
 void gameUnload()
 {
@@ -32,6 +32,8 @@ void gameUnload()
 		bestTime = gameTime;
 
 	gameTime = 0;
+	gameOverTimer = 0;
+	playerPenaltyTimer = 0;
 }
 
 void gameLoad()
@@ -57,7 +59,23 @@ void gameLogic()
 {
 	listElement *curNode;
 
-	++gameTime;
+	++gameTicks;
+
+	if (gameOverTimer)
+	{
+		--gameOverTimer;
+
+		if (!gameOverTimer)
+		{
+			gameTime = 0;
+
+			playerPenaltyTimer = 0;
+			playerLastAngle = playerObj->angle;
+		}
+	}
+
+	if (!gameOverTimer)
+		++gameTime;
 
 	/* Remove flagged objects */
 	objListHead = listElementDeleteMatching(objListHead, objectItemDelete, objectItemDisposedMatch);
@@ -132,7 +150,7 @@ void gameLogic()
 	}
 	else
 	{
-		if (!(gameTime % (60*6)))
+		if (!((gameTime+GAME_OVER_TIME) % (60*6)))
 		{
 			int i;
 			int max = 1 + (gameTime/1800);
@@ -224,15 +242,12 @@ void gameLogic()
 						curObj->smoking = curObj->type == OBJ_PLAYER ? 30 : 0;
 						curObj2->smoking = curObj2->type == OBJ_PLAYER ? 30 : 0;
 
-						if (curObj->type == OBJ_PLAYER || curObj2->type == OBJ_PLAYER)
+						if (!gameOverTimer && (curObj->type == OBJ_PLAYER || curObj2->type == OBJ_PLAYER))
 						{
+							gameOverTimer = GAME_OVER_TIME;
+
 							if (gameTime > bestTime)
 								bestTime = gameTime;
-
-							gameTime = 0;
-
-							playerPenaltyTimer = 0;
-							playerLastAngle = playerObj->angle;
 						}
 
 						objectLoad(&newObj, OBJ_SMOKE);
@@ -262,7 +277,7 @@ void gameDraw()
 	listElement *curNode;
 	int i;
 
-	drawBackground(screen);
+	drawBackground(screen, gameOverTimer ? getColor(128, 0, 0) : getColor(0, 0, 128));
 
 #if defined(DEBUG)
 	{
@@ -285,7 +300,7 @@ void gameDraw()
 			int x = (int)playerObj->x % 16;
 			int y = (int)playerObj->y % 16;
 
-			drawPoint(screen, i - x, j - y);
+			drawPoint(screen, i - x, j - y, gameOverTimer ? getColor(224, 0, 0) : getColor(0, 0, 224));
 		}
 	}
 
@@ -321,7 +336,7 @@ void gameDraw()
 		dTextCentered(&gameFont, "Avoid missiles.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading), ALPHA_OPAQUE, SHADOW_DROP);
 		dTextCentered(&gameFont, "Stay alive.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading) * 2, ALPHA_OPAQUE, SHADOW_DROP);
 	}
-	if (bestTime && gameTime < 60*2)
+	if (gameOverTimer)
 	{
 		dTextCentered(&gameFont, "BOOM!", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
 		dTextCentered(&gameFont, "Try again.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading), ALPHA_OPAQUE, SHADOW_DROP);

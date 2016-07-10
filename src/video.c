@@ -61,6 +61,11 @@ void updateScale()
 	screen = scale > 1 ? SDL_CreateRGBSurface(SDL_SWSURFACE, SCREEN_W, SCREEN_H, SCREEN_BPP, 0, 0, 0, 0) : screenScaled;
 }
 
+Uint32 getColor(Uint8 r, Uint8 g, Uint8 b)
+{
+	return SDL_MapRGB(screen->format, r, g, b);
+}
+
 SDL_Surface *loadImage(char *fileName)
 {
 	SDL_Surface *loadedImage;
@@ -129,12 +134,12 @@ void drawImage(SDL_Surface *source, SDL_Rect *clip, SDL_Surface *destination, in
 	SDL_BlitSurface(source, clip, destination, &offset);
 }
 
-void drawBackground(SDL_Surface *destination)
+void drawBackground(SDL_Surface *destination, Uint32 color)
 {
-	SDL_FillRect(destination, NULL, SDL_MapRGB(destination->format, 0, 0, 128));
+	SDL_FillRect(destination, NULL, color);
 }
 
-void drawPoint(SDL_Surface *destination, int x, int y)
+void drawPoint(SDL_Surface *destination, int x, int y, Uint32 color)
 {
 	SDL_Rect r;
 
@@ -143,7 +148,7 @@ void drawPoint(SDL_Surface *destination, int x, int y)
 	r.w = 1;
 	r.h = 1;
 
-	SDL_FillRect(destination, &r, SDL_MapRGB(destination->format, 0, 0, 224));
+	SDL_FillRect(destination, &r, color);
 }
 
 int frameLimiter()
