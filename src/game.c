@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "debug.h"
+#include "fileio.h"
 #include "font.h"
 #include "helpers.h"
 #include "input.h"
@@ -15,8 +16,8 @@ object *playerObj;
 tileset marker;
 int weaponMode;
 int gameTicks;
-int gameTime;
-int bestTime;
+uint16_t gameTime;
+uint16_t bestTime;
 int cooldownTime;
 int playerLastAngle;
 int playerPenaltyTimer;
@@ -31,7 +32,10 @@ void gameUnload()
 	tilesetUnload(&marker);
 
 	if (gameTime > bestTime)
+	{
 		bestTime = gameTime;
+		storeHiscore();
+	}
 
 	gameTime = 0;
 	gameOverTimer = 0;
@@ -258,7 +262,10 @@ void gameLogic()
 							scoreBlinkingTimer = SCORE_BLINKING_INTERVAL;
 
 							if (gameTime > bestTime)
+							{
 								bestTime = gameTime;
+								storeHiscore();
+							}
 						}
 
 						objectLoad(&newObj, OBJ_SMOKE);

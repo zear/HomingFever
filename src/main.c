@@ -12,6 +12,7 @@ int init()
 {
 	getConfigDir();
 	getConfig();
+	getHiscore();
 
 	if(initSDL())
 	{

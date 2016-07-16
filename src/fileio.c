@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include "game.h"
 
 char *configDir;
 
@@ -13,10 +14,10 @@ void getConfigDir()
 
 	if(homeDir != NULL)
 	{
-		configDir = (char *)malloc(strlen(homeDir) + strlen("/.shooter") + 1);
+		configDir = (char *)malloc(strlen(homeDir) + strlen("/.homingFever") + 1);
 		if(configDir != NULL)
 		{
-			sprintf(configDir, "%s/.shooter", homeDir);
+			sprintf(configDir, "%s/.homingFever", homeDir);
 			mkdir(configDir, 0755); /* Create the directory if it doesn't exist. */
 		}
 	}
@@ -122,4 +123,101 @@ void storeConfig()
 
 	fclose(f);
 	free(config);
+}
+
+
+void getHiscore()
+{
+	FILE *f;
+	char *save;
+	char header[] = HISCORE_HEADER;
+	uint8_t version;
+
+	if(!configDir)
+	{
+		printf("Config directory doesn't exist.\n");
+		return;
+	}
+
+	save = (char *)malloc(strlen(configDir) + strlen("/score.dat") + 1);
+
+	if(!save)
+	{
+		return;
+	}
+
+	sprintf(save, "%s/score.dat", configDir);
+
+	f = fopen(save, "rb");
+
+	if(f == NULL)
+	{
+		printf("Failed to open score file: \"%s\" for writing.\n", save);
+		free(save);
+		return;
+	}
+
+	fread(&header, sizeof(char), strlen(header), f);
+
+	if (strcmp(header, HISCORE_HEADER))
+	{
+		printf("File \"%s\" is not a valid score file.\n", save);
+		fclose(f);
+		free(save);
+		return;
+	}
+
+	fread(&version, sizeof(uint8_t), 1, f);
+
+	if (version != HISCORE_FORMAT_VERSION)
+	{
+		fclose(f);
+		free(save);
+		printf("Incompatible score file in version %d. Required version: %d.\n", version, SAVE_FORMAT_VERSION);
+		return;
+	}
+
+	fread(&bestTime, sizeof(uint16_t), 1, f);
+
+	fclose(f);
+	free(save);
+}
+
+void storeHiscore()
+{
+	FILE *f;
+	char *save;
+	char header[] = HISCORE_HEADER;
+	uint8_t version = HISCORE_FORMAT_VERSION;
+
+	if(!configDir)
+	{
+		printf("Config directory doesn't exist.\n");
+		return;
+	}
+
+	save = (char *)malloc(strlen(configDir) + strlen("/score.dat") + 1);
+
+	if(!save)
+	{
+		return;
+	}
+
+	sprintf(save, "%s/score.dat", configDir);
+
+	f = fopen(save, "wb");
+
+	if(f == NULL)
+	{
+		printf("Failed to open score file: \"%s\" for writing.\n", save);
+		free(save);
+		return;
+	}
+
+	fwrite(&header, sizeof(char), strlen(header), f);
+	fwrite(&version, sizeof(uint8_t), 1, f);
+	fwrite(&bestTime, sizeof(uint16_t), 1, f);
+
+	fclose(f);
+	free(save);
 }
