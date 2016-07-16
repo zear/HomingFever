@@ -133,42 +133,20 @@ void gameLogic()
 /*	{*/
 /*	}*/
 
-	if (!(gameTime % (60*30)))
+	if (!gameOverTimer)
 	{
-		int i;
-		int num = 4;
-
-		for (i = 0; i < num; ++i)
-		{
-			int angle = 45+90*i;
-			int radius = 350;
-			object newObj;
-
-			objectLoad(&newObj, OBJ_MISSILE_YELLOW);
-
-			newObj.x = FMODF(playerObj->x + radius * sineTable[angle], LEVEL_W);
-			newObj.y = FMODF(playerObj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
-
-			objListHead = listElementPrepend(objListHead);
-			objListHead->item = malloc(sizeof(object));
-			memcpy(objListHead->item, &newObj, sizeof(object));
-		}
-	}
-	else
-	{
-		if (!((gameTime+GAME_OVER_TIME) % (60*6)))
+		if (!(gameTime % (60*30)))
 		{
 			int i;
-			int max = 1 + (gameTime/1800);
-			int num = (rand() % max) + 1;
+			int num = 4;
 
 			for (i = 0; i < num; ++i)
 			{
-				int angle = rand() % SINE_STEPS;
-				int radius = 400 + (rand() % 100);
+				int angle = 45+90*i;
+				int radius = 350;
 				object newObj;
 
-				objectLoad(&newObj, OBJ_MISSILE_RED);
+				objectLoad(&newObj, OBJ_MISSILE_YELLOW);
 
 				newObj.x = FMODF(playerObj->x + radius * sineTable[angle], LEVEL_W);
 				newObj.y = FMODF(playerObj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
@@ -178,25 +156,50 @@ void gameLogic()
 				memcpy(objListHead->item, &newObj, sizeof(object));
 			}
 		}
-		if (!(gameTime % (30*23)))
+		else
 		{
-			int i;
-			int num = (rand() % 2) + 1;
-
-			for (i = 0; i < num; ++i)
+			if (!((gameTime+GAME_OVER_TIME) % (60*6)))
 			{
-				int angle = rand() % SINE_STEPS;
-				int radius = 400 + (rand() % 100);
-				object newObj;
+				int i;
+				int max = 1 + (gameTime/1800);
+				int num = (rand() % max) + 1;
 
-				objectLoad(&newObj, OBJ_MISSILE_BLUE);
+				for (i = 0; i < num; ++i)
+				{
+					int angle = rand() % SINE_STEPS;
+					int radius = 400 + (rand() % 100);
+					object newObj;
 
-				newObj.x = FMODF(playerObj->x + radius * sineTable[angle], LEVEL_W);
-				newObj.y = FMODF(playerObj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
+					objectLoad(&newObj, OBJ_MISSILE_RED);
 
-				objListHead = listElementPrepend(objListHead);
-				objListHead->item = malloc(sizeof(object));
-				memcpy(objListHead->item, &newObj, sizeof(object));
+					newObj.x = FMODF(playerObj->x + radius * sineTable[angle], LEVEL_W);
+					newObj.y = FMODF(playerObj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
+
+					objListHead = listElementPrepend(objListHead);
+					objListHead->item = malloc(sizeof(object));
+					memcpy(objListHead->item, &newObj, sizeof(object));
+				}
+			}
+			if (!(gameTime % (30*23)))
+			{
+				int i;
+				int num = (rand() % 2) + 1;
+
+				for (i = 0; i < num; ++i)
+				{
+					int angle = rand() % SINE_STEPS;
+					int radius = 400 + (rand() % 100);
+					object newObj;
+
+					objectLoad(&newObj, OBJ_MISSILE_BLUE);
+
+					newObj.x = FMODF(playerObj->x + radius * sineTable[angle], LEVEL_W);
+					newObj.y = FMODF(playerObj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
+
+					objListHead = listElementPrepend(objListHead);
+					objListHead->item = malloc(sizeof(object));
+					memcpy(objListHead->item, &newObj, sizeof(object));
+				}
 			}
 		}
 	}
