@@ -21,6 +21,8 @@ int cooldownTime;
 int playerLastAngle;
 int playerPenaltyTimer;
 int gameOverTimer;
+int scoreBlinkingDraw;
+int scoreBlinkingTimer;
 
 void gameUnload()
 {
@@ -63,14 +65,18 @@ void gameLogic()
 
 	if (gameOverTimer)
 	{
-		--gameOverTimer;
-
-		if (!gameOverTimer)
+		if (!--gameOverTimer)
 		{
 			gameTime = 0;
 
 			playerPenaltyTimer = 0;
 			playerLastAngle = playerObj->angle;
+		}
+
+		if (!--scoreBlinkingTimer)
+		{
+			scoreBlinkingDraw = !scoreBlinkingDraw;
+			scoreBlinkingTimer = SCORE_BLINKING_INTERVAL;
 		}
 	}
 
@@ -245,6 +251,8 @@ void gameLogic()
 						if (!gameOverTimer && (curObj->type == OBJ_PLAYER || curObj2->type == OBJ_PLAYER))
 						{
 							gameOverTimer = GAME_OVER_TIME;
+							scoreBlinkingDraw = 1;
+							scoreBlinkingTimer = SCORE_BLINKING_INTERVAL;
 
 							if (gameTime > bestTime)
 								bestTime = gameTime;
@@ -315,7 +323,7 @@ void gameDraw()
 
 	sprintf(timerStr, "%d'%02d\"%02d\n", (bestTime > gameTime ? bestTime : gameTime)/60/60, (bestTime > gameTime ? bestTime : gameTime)/60%60, (bestTime > gameTime ? bestTime : gameTime)%60*1000/600);
 
-	if (bestTime > gameTime)
+	if (bestTime > gameTime && (!gameOverTimer || scoreBlinkingDraw))
 	{
 		char timerStr2[10];
 
@@ -323,7 +331,8 @@ void gameDraw()
 		strcat(timerStr, timerStr2);
 	}
 
-	dTextCentered(&gameFont, timerStr, gameFont.h, ALPHA_OPAQUE, SHADOW_DROP);
+	if (!gameOverTimer || bestTime > gameTime || scoreBlinkingDraw)
+		dTextCentered(&gameFont, timerStr, gameFont.h, ALPHA_OPAQUE, SHADOW_DROP);
 
 #if defined(DEBUG)
 	sprintf(debugStr, "Obj: %u\n(%03d,%03d)", listLength(objListHead), (int)playerObj->x, (int)playerObj->y);
