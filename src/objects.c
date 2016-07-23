@@ -37,13 +37,6 @@ object *objectTemplate(objectType type)
 			newObj.hitboxW = 10;
 			newObj.hitboxH = 10;
 		break;
-		case OBJ_TARGET:
-			tilesetLoad(newObj.tiles, "data/gfx/pointsGem.bmp", 11, 11, 16, 16);
-			newObj.w = 11;
-			newObj.h = 11;
-			newObj.hitboxW = 9;
-			newObj.hitboxH = 9;
-		break;
 		case OBJ_MISSILE_RED:
 			tilesetLoad(newObj.tiles, "data/gfx/missileRed.bmp", 8, 8, 8, 16);
 			newObj.w = 8;
