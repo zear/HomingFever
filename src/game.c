@@ -24,6 +24,8 @@ int playerPenaltyTimer;
 int gameOverTimer;
 int scoreBlinkingDraw;
 int scoreBlinkingTimer;
+int gamePaused;
+int gamePausedTimer;
 
 void gameUnload()
 {
@@ -58,6 +60,7 @@ void gameLoad()
 
 	playerObj = objListHead->item;
 
+	gamePaused = 0;
 	gameTime = 0;
 }
 
@@ -65,7 +68,14 @@ void gameLogic()
 {
 	listElement *curNode;
 
-	++gameTicks;
+	if (gamePaused)
+	{
+		++gamePausedTimer;
+	}
+	else
+	{
+		++gameTicks;
+	}
 
 	if (gameOverTimer)
 	{
@@ -84,7 +94,7 @@ void gameLogic()
 		}
 	}
 
-	if (!gameOverTimer)
+	if (!gameOverTimer && !gamePaused)
 		++gameTime;
 
 	/* Remove flagged objects */
@@ -117,17 +127,27 @@ void gameLogic()
 	}
 #endif
 
-	if (keys[KEY_BACK])
+	if (keys[KEY_BACK] && !gamePaused)
 	{
 		keys[KEY_BACK] = 0;
 		programStateNew = STATE_TITLE;
 	}
-	if (keys[KEY_LEFT] && joyData.inDeadzoneX && joyData.inDeadzoneY)
+	if (keys[KEY_START] && !gameOverTimer)
+	{
+		keys[KEY_START] = 0;
+
+		if (!gamePaused || gamePausedTimer >= PAUSE_RESUME_TIME)
+		{
+			gamePaused = !gamePaused;
+			gamePausedTimer = 0;
+		}
+	}
+	if (keys[KEY_LEFT] && !gamePaused && joyData.inDeadzoneX && joyData.inDeadzoneY)
 	{
 		playerObj->angle = MOD(playerObj->angle + PLAYER_ROTATION, SINE_STEPS);
 
 	}
-	if (keys[KEY_RIGHT] && joyData.inDeadzoneX && joyData.inDeadzoneY)
+	if (keys[KEY_RIGHT] && !gamePaused && joyData.inDeadzoneX && joyData.inDeadzoneY)
 	{
 		playerObj->angle = MOD(playerObj->angle - PLAYER_ROTATION, SINE_STEPS);
 	}
@@ -138,7 +158,7 @@ void gameLogic()
 /*	{*/
 /*	}*/
 
-	if (!gameOverTimer)
+	if (!gameOverTimer && !gamePaused)
 	{
 		if (!(gameTime % (60*30)))
 		{
@@ -213,7 +233,8 @@ void gameLogic()
 	}
 
 	curNode = objListHead;
-	while(curNode)
+
+	while(curNode && !gamePaused)
 	{
 		objectLogic((object *)curNode->item);
 
@@ -222,7 +243,7 @@ void gameLogic()
 
 	/* Collision check. */
 	curNode = objListHead;
-	while(curNode)
+	while(curNode && !gamePaused)
 	{
 		listElement *curNode2 = objListHead;
 		object *curObj = (object *)curNode->item;
@@ -330,7 +351,8 @@ void gameDraw()
 
 	while(curNode)
 	{
-		objectDraw((object *)curNode->item);
+		if (!gamePaused || curNode->item == playerObj)
+			objectDraw((object *)curNode->item);
 
 		curNode = curNode->next;
 	}
@@ -363,5 +385,13 @@ void gameDraw()
 	{
 		dTextCentered(&gameFont, "BOOM!", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
 		dTextCentered(&gameFont, "Try again.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading), ALPHA_OPAQUE, SHADOW_DROP);
+	}
+
+	if (gamePaused)
+	{
+		dTextCentered(&gameFont, "PAUSED", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
+
+		if (gamePausedTimer >= PAUSE_RESUME_TIME)
+			dTextCentered(&gameFont, "Press START to resume", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading) * 2, ALPHA_OPAQUE, SHADOW_DROP);
 	}
 }
