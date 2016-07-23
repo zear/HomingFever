@@ -5,10 +5,6 @@
 
 #define JOY_DEADZONE		5000
 
-void input();
-
-extern int keys[2048];
-
 enum KeyNames
 {
 	KEY_D_SLOMO	= SDLK_0,
@@ -21,5 +17,26 @@ enum KeyNames
 	KEY_DOWN	= SDLK_DOWN,
 	KEY_OK		= SDLK_LCTRL
 };
+
+typedef enum JoystickMode
+{
+	JOY_MODE_DISABLED = 0,
+	JOY_MODE_DIGITAL,
+	JOY_MODE_ANALOG
+} JoystickMode;
+
+typedef struct JoystickData
+{
+	int x;
+	int y;
+	int inDeadzoneX;
+	int inDeadzoneY;
+} JoystickData;
+
+extern int keys[2048];
+extern JoystickMode joyMode;
+extern JoystickData joyData;
+
+void input();
 
 #endif /* _INPUT_H_ */

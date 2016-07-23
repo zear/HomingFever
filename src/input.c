@@ -5,7 +5,8 @@
 
 SDL_Event event;
 int keys[2048];
-int enableJoystick = 0;
+JoystickMode joyMode = JOY_MODE_ANALOG;
+JoystickData joyData = {0, 0, 1, 1};
 
 void input()
 {
@@ -16,55 +17,113 @@ void input()
 			case SDL_QUIT:
 				quit = 1;
 			break;
-			case SDL_KEYDOWN:			/* Button press. */
+			case SDL_KEYDOWN:			/* Key press. */
 				keys[event.key.keysym.sym] = 1;
 			break;
-			case SDL_KEYUP:				/* Button release. */
+			case SDL_KEYUP:				/* Key release. */
 				keys[event.key.keysym.sym] = 0;
 			break;
+			case SDL_JOYHATMOTION:			/* Joystick hat movement. */
+				keys[SDLK_UP] = event.jhat.value & SDL_HAT_UP;
+				keys[SDLK_DOWN] = event.jhat.value & SDL_HAT_DOWN;
+				keys[SDLK_LEFT] = event.jhat.value & SDL_HAT_LEFT;
+				keys[SDLK_RIGHT] = event.jhat.value & SDL_HAT_RIGHT;
+			break;
 			case SDL_JOYAXISMOTION:			/* Analog joystick movement. */
-				if (!enableJoystick)
+				switch (joyMode)
+				{
+					case JOY_MODE_DISABLED:
 					break;
 
-				switch(event.jaxis.axis)
-				{
-					case 0:		/* Axis 0 (left-right). */
-						if(event.jaxis.value < -JOY_DEADZONE)
+					case JOY_MODE_DIGITAL:
+						switch(event.jaxis.axis)
 						{
-							/* Left movement. */
-							keys[SDLK_LEFT] = 1;
-							keys[SDLK_RIGHT] = 0;
-						}
-						else if(event.jaxis.value > JOY_DEADZONE)
-						{
-							/* Right movement. */
-							keys[SDLK_LEFT] = 0;
-							keys[SDLK_RIGHT] = 1;
-						}
-						else
-						{
-							keys[SDLK_LEFT] = 0;
-							keys[SDLK_RIGHT] = 0;
+							case 0:		/* Axis 0 (left-right). */
+								if(event.jaxis.value < -JOY_DEADZONE)
+								{
+									/* Left movement. */
+									keys[SDLK_LEFT] = 1;
+									keys[SDLK_RIGHT] = 0;
+								}
+								else if(event.jaxis.value > JOY_DEADZONE)
+								{
+									/* Right movement. */
+									keys[SDLK_LEFT] = 0;
+									keys[SDLK_RIGHT] = 1;
+								}
+								else
+								{
+									keys[SDLK_LEFT] = 0;
+									keys[SDLK_RIGHT] = 0;
+								}
+							break;
+							case 1:		/* Axis 1 (up-down). */
+								if(event.jaxis.value < -JOY_DEADZONE)
+								{
+									/* Up movement. */
+									keys[SDLK_UP] = 1;
+									keys[SDLK_DOWN] = 0;
+								}
+								else if(event.jaxis.value > JOY_DEADZONE)
+								{
+									/* Down movement. */
+									keys[SDLK_UP] = 0;
+									keys[SDLK_DOWN] = 1;
+								}
+								else
+								{
+									keys[SDLK_UP] = 0;
+									keys[SDLK_DOWN] = 0;
+								}
+							break;
+
+							default:
+							break;
 						}
 					break;
-					case 1:		/* Axis 1 (up-down). */
-						if(event.jaxis.value < -JOY_DEADZONE)
+					case JOY_MODE_ANALOG:
+						switch(event.jaxis.axis)
 						{
-							/* Up movement. */
-							keys[SDLK_UP] = 1;
-							keys[SDLK_DOWN] = 0;
+							case 0:
+								joyData.x = event.jaxis.value;
+								joyData.inDeadzoneX = (event.jaxis.value > -JOY_DEADZONE && event.jaxis.value < JOY_DEADZONE) ? 1 : 0;
+							break;
+							case 1:
+								joyData.y = event.jaxis.value;
+								joyData.inDeadzoneY = (event.jaxis.value > -JOY_DEADZONE && event.jaxis.value < JOY_DEADZONE) ? 1 : 0;
+							break;
+
+							default:
+							break;
 						}
-						else if(event.jaxis.value > JOY_DEADZONE)
-						{
-							/* Down movement. */
-							keys[SDLK_UP] = 0;
-							keys[SDLK_DOWN] = 1;
-						}
-						else
-						{
-							keys[SDLK_UP] = 0;
-							keys[SDLK_DOWN] = 0;
-						}
+					break;
+
+					default:
+					break;
+				}
+			break;
+			case SDL_JOYBUTTONDOWN:			/* Joystick button press. */
+				switch (event.jbutton.button)
+				{
+					case 0:
+						keys[KEY_OK] = 1;
+					break;
+					case 1:
+						keys[KEY_BACK] = 1;
+					break;
+
+					default:
+					break;
+				}
+			break;
+			case SDL_JOYBUTTONUP:			/* Joystick button release. */
+				switch (event.jbutton.button)
+				{
+					case 0:
+						keys[KEY_OK] = 0;
+					break;
+					case 1:
+						keys[KEY_BACK] = 0;
 					break;
 
 					default:

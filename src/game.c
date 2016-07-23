@@ -122,12 +122,12 @@ void gameLogic()
 		keys[KEY_BACK] = 0;
 		programStateNew = STATE_TITLE;
 	}
-	if (keys[KEY_LEFT])
+	if (keys[KEY_LEFT] && joyData.inDeadzoneX && joyData.inDeadzoneY)
 	{
 		playerObj->angle = MOD(playerObj->angle + PLAYER_ROTATION, SINE_STEPS);
 
 	}
-	if (keys[KEY_RIGHT])
+	if (keys[KEY_RIGHT] && joyData.inDeadzoneX && joyData.inDeadzoneY)
 	{
 		playerObj->angle = MOD(playerObj->angle - PLAYER_ROTATION, SINE_STEPS);
 	}

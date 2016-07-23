@@ -3,6 +3,7 @@
 #include <math.h>
 #include "game.h"
 #include "helpers.h"
+#include "input.h"
 #include "tileset.h"
 #include "video.h"
 
@@ -189,6 +190,43 @@ void objectLogic(object *obj)
 	{
 		int penaltyRange = 70;
 		int inPenaltyRange = 0;
+
+		if (joyMode == JOY_MODE_ANALOG && !(joyData.inDeadzoneX && joyData.inDeadzoneY))
+		{
+			int step = PLAYER_ROTATION;
+			int desiredAngle;
+			int A;
+			int B;
+
+			desiredAngle = atan2(joyData.y, joyData.x) * 180/PI;
+			desiredAngle = MOD(desiredAngle, 360);
+			desiredAngle = (desiredAngle + 90) % SINE_STEPS;
+			desiredAngle = (desiredAngle - 359) * -1;
+
+			A = obj->angle;
+			B = desiredAngle;
+
+			if (B - A >= 180)
+			{
+				obj->angle -= step;
+			}
+			else
+			{
+				if (B - A <= -180)
+				{
+					obj->angle += step;
+				}
+				else
+				{
+					obj->angle += ((B > A) ? step : 0) + ((B < A) ? -step : 0);
+				}
+			}
+
+			if (abs(desiredAngle - obj->angle) < step)
+				obj->angle = desiredAngle;
+
+			obj->angle = MOD(obj->angle, SINE_STEPS);
+		}
 
 		obj->vx = -PLAYER_SPEED * sineTable[obj->angle];
 		obj->vy = -PLAYER_SPEED * sineTable[(obj->angle+90)%SINE_STEPS];
