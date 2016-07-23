@@ -237,6 +237,7 @@ void objectLogic(object *obj)
 
 				newObj.x = FMODF(obj->x + radius * sineTable[angle], LEVEL_W);
 				newObj.y = FMODF(obj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
+				newObj.angle = angle;
 
 				objListHead = listElementPrepend(objListHead);
 				objListHead->item = malloc(sizeof(object));
