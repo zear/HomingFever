@@ -81,42 +81,6 @@ Uint32 getColor(Uint8 r, Uint8 g, Uint8 b)
 	return SDL_MapRGB(screen->format, r, g, b);
 }
 
-SDL_Surface *loadImage(char *fileName)
-{
-	SDL_Surface *loadedImage;
-	SDL_Surface *optimizedImage;
-	Uint32 colorKey;
-
-	if (!fileName)
-	{
-		fprintf(stderr, "ERROR: Filename is empty.");
-		return NULL;
-	}
-
-	loadedImage = SDL_LoadBMP(fileName);
-
-	if (!loadedImage)
-	{
-		fprintf(stderr, "ERROR: Failed to load image: %s\n", fileName);
-		return NULL;
-	}
-
-	optimizedImage = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_DOUBLEBUF, loadedImage->w, loadedImage->h, SCREEN_BPP, 0, 0, 0, 0);
-	SDL_BlitSurface(loadedImage, NULL, optimizedImage, NULL);
-	SDL_FreeSurface(loadedImage);
-
-	if (!optimizedImage)
-	{
-		fprintf(stderr, "ERROR: Failed to optimize image: %s\n", fileName);
-		return NULL;
-	}
-
-	colorKey = SDL_MapRGB(optimizedImage->format, 255, 0, 255); /* Set transparency to magenta. */
-	SDL_SetColorKey(optimizedImage, SDL_SRCCOLORKEY, colorKey);
-
-	return optimizedImage;
-}
-
 void unloadImageSDL(surfaceId id)
 {
 	SDL_FreeSurface(surfaces[id]);
@@ -170,28 +134,6 @@ surfaceId loadImageSDL(char *fileName)
 	return surfaceTail - 1;
 }
 
-void clipImage(SDL_Rect *source, int tileWidth, int tileHeight, int rowLength, int numOfTiles)
-{
-	int i;
-	int j;
-	int k;
-	int l;
-
-	for(i = 0, k = 0; k < numOfTiles; i+= tileHeight)
-	{
-		for(j = 0, l = 0; l < rowLength; j+= tileWidth)
-		{
-			source[k].x = j;
-			source[k].y = i;
-			source[k].w = tileWidth;
-			source[k].h = tileHeight;
-			++k;
-			++l;
-		}
-		l = 0;
-	}
-}
-
 void clipImageSDL(rect *source, int tileWidth, int tileHeight, int rowLength, int numOfTiles)
 {
 	int i;
@@ -212,16 +154,6 @@ void clipImageSDL(rect *source, int tileWidth, int tileHeight, int rowLength, in
 		}
 		l = 0;
 	}
-}
-
-void drawImage(SDL_Surface *source, SDL_Rect *clip, SDL_Surface *destination, int x, int y)
-{
-	SDL_Rect offset;
-
-	offset.x = x;
-	offset.y = y;
-
-	SDL_BlitSurface(source, clip, destination, &offset);
 }
 
 void drawImageSDL(surfaceId source, rect *clip, surfaceId destination, int x, int y)
@@ -246,26 +178,9 @@ void drawImageSDL(surfaceId source, rect *clip, surfaceId destination, int x, in
 	}
 }
 
-void drawBackground(SDL_Surface *destination, Uint32 color)
-{
-	SDL_FillRect(destination, NULL, color);
-}
-
 void drawBackgroundSDL(surfaceId destination, Uint32 color)
 {
 	SDL_FillRect(surfaces[destination], NULL, color);
-}
-
-void drawPoint(SDL_Surface *destination, int x, int y, Uint32 color)
-{
-	SDL_Rect r;
-
-	r.x = x;
-	r.y = y;
-	r.w = 1;
-	r.h = 1;
-
-	SDL_FillRect(destination, &r, color);
 }
 
 void drawPointSDL(surfaceId destination, int x, int y, Uint32 color)
