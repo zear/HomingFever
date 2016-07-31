@@ -10,7 +10,12 @@
 
 int init()
 {
-	getConfigDir();
+	if (getConfigDir())
+	{
+		printf("Failed to retrieve config path.\n");
+		return -1;
+	}
+
 	getConfig();
 	getHiscore();
 
@@ -27,11 +32,6 @@ int init()
 
 void deinit()
 {
-	if(configDir)
-	{
-		free(configDir);
-	}
-
 	fontUnload(&gameFont);
 	fontUnload(&gameFontShadow);
 

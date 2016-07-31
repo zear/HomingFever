@@ -5,10 +5,11 @@
 #define SAVE_FORMAT_VERSION	1
 #define HISCORE_HEADER		"FEVER"
 #define HISCORE_FORMAT_VERSION	1
+#define FILE_MAX_PATH		100
 
-extern char *configDir;
+extern char configDir[FILE_MAX_PATH];
 
-void getConfigDir();
+int getConfigDir();
 void getConfig();
 void storeConfig();
 void getHiscore();

@@ -3,7 +3,7 @@ ifeq ($(PLATFORM), gcw0)
 	STRIP		:= /opt/gcw0-toolchain/usr/bin/mipsel-linux-strip
 	SYSROOT		:= $(shell $(CC) --print-sysroot)
 	CFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
-	CFLAGS		+= -DNO_FRAMELIMIT -DSCREEN_SCALE=1
+	CFLAGS		+= -DNO_FRAMELIMIT -DSCREEN_SCALE=1 -DHOME_DIR
 	LDFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --libs) -lm
 	RELEASEDIR	:= release
 endif
@@ -13,7 +13,7 @@ ifeq ($(PLATFORM), a320)
 	STRIP		:= /opt/opendingux-toolchain/usr/bin/mipsel-linux-strip
 	SYSROOT		:= $(shell $(CC) --print-sysroot)
 	CFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
-	CFLAGS		+= -DNO_FRAMELIMIT
+	CFLAGS		+= -DNO_FRAMELIMIT -DSCREEN_SCALE=1 -DHOME_DIR
 	LDFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --libs) -lm
 	TARGET		:= fever.dge
 endif
@@ -29,7 +29,7 @@ endif
 
 CC		?= gcc
 STRIP		?= strip
-CFLAGS		?= $(shell sdl-config --cflags)
+CFLAGS		?= $(shell sdl-config --cflags) -DHOME_DIR
 LDFLAGS		?= $(shell sdl-config --libs) -lm
 TARGET		?= fever.elf
 SRCDIR		:= src
