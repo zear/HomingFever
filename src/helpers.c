@@ -20,7 +20,7 @@ listElement *listElementPrepend(listElement *head)
 
 }
 
-listElement *listElementDelete(listElement *head, listElement *toDelNode, void(*itemDel)(void *item))
+listElement *listElementDelete(listElement *head, listElement *toDelNode, void(*itemDel)(void *item, const void *data), const void *data)
 {
 	listElement *prevNode = NULL;
 	listElement *curNode = head;
@@ -38,7 +38,7 @@ listElement *listElementDelete(listElement *head, listElement *toDelNode, void(*
 				prevNode->next = curNode->next;
 			}
 
-			itemDel(curNode->item);
+			itemDel(curNode->item, data);
 			free(curNode);
 			return head;
 		}
@@ -49,7 +49,7 @@ listElement *listElementDelete(listElement *head, listElement *toDelNode, void(*
 	return head;
 }
 
-listElement *listElementDeleteMatching(listElement *head, void(*itemDel)(void *item), int(*pattern)(void *item))
+listElement *listElementDeleteMatching(listElement *head, void(*itemDel)(void *item, const void *data), int(*pattern)(void *item), const void *data)
 {
 	listElement *prevNode = NULL;
 	listElement *curNode = head;
@@ -69,7 +69,7 @@ listElement *listElementDeleteMatching(listElement *head, void(*itemDel)(void *i
 				prevNode->next = next;
 			}
 
-			itemDel(curNode->item);
+			itemDel(curNode->item, data);
 			free(curNode);
 
 			curNode = next;
@@ -85,7 +85,7 @@ listElement *listElementDeleteMatching(listElement *head, void(*itemDel)(void *i
 }
 
 
-listElement *listElementDeleteAll(listElement *head, void(*itemDel)(void *item))
+listElement *listElementDeleteAll(listElement *head, void(*itemDel)(void *item, const void *data), const void *data)
 {
 	listElement *curNode = head;
 
@@ -93,7 +93,7 @@ listElement *listElementDeleteAll(listElement *head, void(*itemDel)(void *item))
 	{
 		listElement *toDelNode = curNode;
 		curNode = curNode->next;
-		itemDel(toDelNode->item);
+		itemDel(toDelNode->item, data);
 		free(toDelNode);
 	}
 

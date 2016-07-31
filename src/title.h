@@ -1,9 +1,11 @@
 #ifndef _TITLE_H_
 #define _TITLE_H_
 
-void titleUnload();
-void titleLoad();
+#include "video.h"
+
+void titleUnload(const video *);
+void titleLoad(const video *);
 void titleLogic();
-void titleDraw();
+void titleDraw(const video *);
 
 #endif /* _TITLE_H_ */

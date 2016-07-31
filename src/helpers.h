@@ -1,6 +1,8 @@
 #ifndef _HELPERS_H_
 #define _HELPERS_H_
 
+#include "video.h"
+
 #define ARRAY_SIZE(x)	(sizeof(x) / sizeof(x[0]))
 #define MOD(a,b)	((((a)%(b))+(b))%(b))
 #define FMODF(a,b)	(fmodf(fmodf((a), (b))+(b), (b)))
@@ -16,9 +18,9 @@ typedef struct listElement
 } listElement;
 
 listElement *listElementPrepend(listElement *head);
-listElement *listElementDelete(listElement *head, listElement *toDelNode, void(*itemDel)(void *item));
-listElement *listElementDeleteMatching(listElement *head, void(*itemDel)(void *item), int(*pattern)(void *item));
-listElement *listElementDeleteAll(listElement *head, void(*itemDel)(void *item));
+listElement *listElementDelete(listElement *head, listElement *toDelNode, void(*itemDel)(void *item, const void *data), const void *data);
+listElement *listElementDeleteMatching(listElement *head, void(*itemDel)(void *item, const void *data), int(*pattern)(void *item), const void *data);
+listElement *listElementDeleteAll(listElement *head, void(*itemDel)(void *item, const void *data), const void *data);
 listElement *listElementGet(listElement *head, unsigned int id);
 unsigned int listLength(listElement *head);
 

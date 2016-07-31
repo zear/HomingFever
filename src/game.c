@@ -27,11 +27,11 @@ int scoreBlinkingTimer;
 int gamePaused;
 int gamePausedTimer;
 
-void gameUnload()
+void gameUnload(const video *video)
 {
-	objListHead = listElementDeleteAll(objListHead, objectItemDelete);
-	objTemplateListHead = listElementDeleteAll(objTemplateListHead, objectTemplateItemDelete);
-	tilesetUnload(&marker);
+	objListHead = listElementDeleteAll(objListHead, objectItemDelete, NULL);
+	objTemplateListHead = listElementDeleteAll(objTemplateListHead, objectTemplateItemDelete, video);
+	tilesetUnload(video, &marker);
 
 	if (gameTime > bestTime)
 	{
@@ -44,13 +44,13 @@ void gameUnload()
 	playerPenaltyTimer = 0;
 }
 
-void gameLoad()
+void gameLoad(const video *video)
 {
 	object newObj;
 
-	tilesetLoad(&marker, "data/gfx/marker.bmp", 7, 7, 3, 3);
+	tilesetLoad(video, &marker, "data/gfx/marker.bmp", 7, 7, 3, 3);
 
-	objectLoad(&newObj, OBJ_PLAYER);
+	objectLoad(video, &newObj, OBJ_PLAYER);
 	newObj.x = 0;
 	newObj.y = 0;
 
@@ -64,7 +64,7 @@ void gameLoad()
 	gameTime = 0;
 }
 
-void gameLogic()
+void gameLogic(const video *video)
 {
 	listElement *curNode;
 
@@ -98,7 +98,7 @@ void gameLogic()
 		++gameTime;
 
 	/* Remove flagged objects */
-	objListHead = listElementDeleteMatching(objListHead, objectItemDelete, objectItemDisposedMatch);
+	objListHead = listElementDeleteMatching(objListHead, objectItemDelete, objectItemDisposedMatch, video);
 
 #if defined(DEBUG)
 	if (keys[KEY_D_SLOMO])
@@ -115,7 +115,7 @@ void gameLogic()
 
 		keys[KEY_D_SPAWN_ENEMY] = 0;
 
-		objectLoad(&newObj, OBJ_MISSILE_RED);
+		objectLoad(video, &newObj, OBJ_MISSILE_RED);
 
 		newObj.x = FMODF(playerObj->x + radius * sineTable[angle], LEVEL_W);
 		newObj.y = FMODF(playerObj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
@@ -171,7 +171,7 @@ void gameLogic()
 				int radius = 350;
 				object newObj;
 
-				objectLoad(&newObj, OBJ_MISSILE_YELLOW);
+				objectLoad(video, &newObj, OBJ_MISSILE_YELLOW);
 
 				newObj.x = FMODF(playerObj->x + radius * sineTable[angle], LEVEL_W);
 				newObj.y = FMODF(playerObj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
@@ -196,7 +196,7 @@ void gameLogic()
 					int radius = 400 + (rand() % 100);
 					object newObj;
 
-					objectLoad(&newObj, OBJ_MISSILE_RED);
+					objectLoad(video, &newObj, OBJ_MISSILE_RED);
 
 					newObj.x = FMODF(playerObj->x + radius * sineTable[angle], LEVEL_W);
 					newObj.y = FMODF(playerObj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
@@ -218,7 +218,7 @@ void gameLogic()
 					int radius = 400 + (rand() % 100);
 					object newObj;
 
-					objectLoad(&newObj, OBJ_MISSILE_BLUE);
+					objectLoad(video, &newObj, OBJ_MISSILE_BLUE);
 
 					newObj.x = FMODF(playerObj->x + radius * sineTable[angle], LEVEL_W);
 					newObj.y = FMODF(playerObj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
@@ -236,7 +236,7 @@ void gameLogic()
 
 	while(curNode && !gamePaused)
 	{
-		objectLogic((object *)curNode->item);
+		objectLogic(video, (object *)curNode->item);
 
 		curNode = curNode->next;
 	}
@@ -293,7 +293,7 @@ void gameLogic()
 							}
 						}
 
-						objectLoad(&newObj, OBJ_SMOKE);
+						objectLoad(video, &newObj, OBJ_SMOKE);
 						newObj.x = (curObj->x + curObj->w/2 - newObj.w/2) - 8 + (rand()%16);
 						newObj.y = (curObj->y + curObj->h/2 - newObj.h/2) - 8 + (rand()%16);
 
@@ -311,7 +311,7 @@ void gameLogic()
 	}
 }
 
-void gameDraw()
+void gameDraw(const video *video)
 {
 #if defined(DEBUG)
 	char debugStr[50];
@@ -320,18 +320,18 @@ void gameDraw()
 	listElement *curNode;
 	int i;
 
-	drawBackground(screen, gameOverTimer ? getColor(128, 0, 0) : getColor(0, 0, 128));
+	video->drawBackground(video->getScreenId(), gameOverTimer ? getColor(128, 0, 0) : getColor(0, 0, 128));
 
 #if defined(DEBUG)
 	{
-		SDL_Rect r;
+		rect r;
 
 		r.x = LEVEL_W - MOD((int)(playerObj->x + playerObj->w/2 - SCREEN_W/2), LEVEL_W) - 1;
 		r.y = LEVEL_H - MOD((int)(playerObj->y + playerObj->h/2 - SCREEN_H/2), LEVEL_H) - 1;
 		r.w = 2;
 		r.h = 2;
 
-		SDL_FillRect(screen, &r, SDL_MapRGB(screen->format, 255, 0, 0));
+		video->fillRect(screen, &r, 255, 0, 0);
 	}
 #endif
 
@@ -343,7 +343,7 @@ void gameDraw()
 			int x = (int)playerObj->x % 16;
 			int y = (int)playerObj->y % 16;
 
-			drawPoint(screen, i - x, j - y, gameOverTimer ? getColor(224, 0, 0) : getColor(0, 0, 224));
+			video->drawPoint(video->getScreenId(), i - x, j - y, gameOverTimer ? getColor(224, 0, 0) : getColor(0, 0, 224));
 		}
 	}
 
@@ -352,7 +352,7 @@ void gameDraw()
 	while(curNode)
 	{
 		if (!gamePaused || curNode->item == playerObj)
-			objectDraw((object *)curNode->item);
+			objectDraw(video, (object *)curNode->item);
 
 		curNode = curNode->next;
 	}
@@ -368,7 +368,7 @@ void gameDraw()
 	}
 
 	if (!gameOverTimer || bestTime > gameTime || scoreBlinkingDraw)
-		dTextCentered(&gameFont, timerStr, gameFont.h, ALPHA_OPAQUE, SHADOW_DROP);
+		dTextCentered(video, &gameFont, timerStr, gameFont.h, ALPHA_OPAQUE, SHADOW_DROP);
 
 #if defined(DEBUG)
 	sprintf(debugStr, "Obj: %u\n(%03d,%03d)", listLength(objListHead), (int)playerObj->x, (int)playerObj->y);
@@ -377,21 +377,21 @@ void gameDraw()
 
 	if (!bestTime && gameTime < 60*4)
 	{
-		dTextCentered(&gameFont, "MISSION:", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
-		dTextCentered(&gameFont, "Avoid missiles.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading), ALPHA_OPAQUE, SHADOW_DROP);
-		dTextCentered(&gameFont, "Stay alive.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading) * 2, ALPHA_OPAQUE, SHADOW_DROP);
+		dTextCentered(video, &gameFont, "MISSION:", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
+		dTextCentered(video, &gameFont, "Avoid missiles.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading), ALPHA_OPAQUE, SHADOW_DROP);
+		dTextCentered(video, &gameFont, "Stay alive.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading) * 2, ALPHA_OPAQUE, SHADOW_DROP);
 	}
 	if (gameOverTimer)
 	{
-		dTextCentered(&gameFont, "BOOM!", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
-		dTextCentered(&gameFont, "Try again.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading), ALPHA_OPAQUE, SHADOW_DROP);
+		dTextCentered(video, &gameFont, "BOOM!", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
+		dTextCentered(video, &gameFont, "Try again.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading), ALPHA_OPAQUE, SHADOW_DROP);
 	}
 
 	if (gamePaused)
 	{
-		dTextCentered(&gameFont, "PAUSED", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
+		dTextCentered(video, &gameFont, "PAUSED", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
 
 		if (gamePausedTimer >= PAUSE_RESUME_TIME)
-			dTextCentered(&gameFont, "Press START to resume", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading) * 2, ALPHA_OPAQUE, SHADOW_DROP);
+			dTextCentered(video, &gameFont, "Press START to resume", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading) * 2, ALPHA_OPAQUE, SHADOW_DROP);
 	}
 }

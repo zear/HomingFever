@@ -7,9 +7,9 @@
 font gameFont;
 font gameFontShadow;
 
-void fontLoad(font *fontObj, char *filename, int glyphWidth, int glyphHeight, int tracking, int leading, font *shadow)
+void fontLoad(const video *video, font *fontObj, char *filename, int glyphWidth, int glyphHeight, int tracking, int leading, font *shadow)
 {
-	tilesetLoad(&fontObj->tiles, filename, glyphWidth, glyphHeight, 16, 256);
+	tilesetLoad(video, &fontObj->tiles, filename, glyphWidth, glyphHeight, 16, 256);
 
 	fontObj->w = glyphWidth;
 	fontObj->h = glyphHeight;
@@ -18,12 +18,12 @@ void fontLoad(font *fontObj, char *filename, int glyphWidth, int glyphHeight, in
 	fontObj->shadow = shadow;
 }
 
-void fontUnload(font *fontObj)
+void fontUnload(const video *video, font *fontObj)
 {
-	tilesetUnload(&fontObj->tiles);
+	tilesetUnload(video, &fontObj->tiles);
 }
 
-void dTextCentered(font *fontObj, char *string, int y, int alpha, shadowType withShadow)
+void dTextCentered(const video *video, font *fontObj, char *string, int y, int alpha, shadowType withShadow)
 {
 	int width = 0;
 	int len = strlen(string);
@@ -39,10 +39,10 @@ void dTextCentered(font *fontObj, char *string, int y, int alpha, shadowType wit
 			width += fontObj->tracking;
 	}
 
-	dText(fontObj, string, SCREEN_W/2 - width/2, y, alpha, withShadow);
+	dText(video, fontObj, string, SCREEN_W/2 - width/2, y, alpha, withShadow);
 }
 
-void dText(font *fontObj, char *string, int x, int y, int alpha, shadowType withShadow)
+void dText(const video *video, font *fontObj, char *string, int x, int y, int alpha, shadowType withShadow)
 {
 	SDL_Rect r;
 	int letterNum = 0;
@@ -67,24 +67,24 @@ void dText(font *fontObj, char *string, int x, int y, int alpha, shadowType with
 
 		if (fontObj->shadow)
 		{
-			SDL_SetAlpha(fontObj->shadow->tiles.image, SDL_SRCALPHA, alpha%256);
+			video->setAlpha(fontObj->shadow->tiles.image, alpha%256);
 
 			switch (withShadow)
 			{
 				case SHADOW_DROP:
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x + FONT_SHADOW_OFFSET_X, r.y);
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x, r.y + FONT_SHADOW_OFFSET_Y);
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x + FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x, r.y + FONT_SHADOW_OFFSET_Y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
 				break;
 				case SHADOW_OUTLINE:
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x - FONT_SHADOW_OFFSET_X, r.y);
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x + FONT_SHADOW_OFFSET_X, r.y);
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x, r.y - FONT_SHADOW_OFFSET_Y);
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x, r.y + FONT_SHADOW_OFFSET_Y);
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x - FONT_SHADOW_OFFSET_X, r.y - FONT_SHADOW_OFFSET_Y);
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x - FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x + FONT_SHADOW_OFFSET_X, r.y - FONT_SHADOW_OFFSET_Y);
-					drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], screen, r.x + FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x - FONT_SHADOW_OFFSET_X, r.y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x, r.y - FONT_SHADOW_OFFSET_Y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x, r.y + FONT_SHADOW_OFFSET_Y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x - FONT_SHADOW_OFFSET_X, r.y - FONT_SHADOW_OFFSET_Y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x - FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y - FONT_SHADOW_OFFSET_Y);
+					video->drawImage(fontObj->shadow->tiles.image, &fontObj->shadow->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
 				break;
 
 				default:
@@ -92,8 +92,8 @@ void dText(font *fontObj, char *string, int x, int y, int alpha, shadowType with
 			}
 		}
 
-		SDL_SetAlpha(fontObj->tiles.image, SDL_SRCALPHA, alpha%256);
-		drawImage(fontObj->tiles.image, &fontObj->tiles.clip[(signed int)string[letterNum]], screen, r.x, r.y);
+		video->setAlpha(fontObj->tiles.image, alpha%256);
+		video->drawImage(fontObj->tiles.image, &fontObj->tiles.clip[(signed int)string[letterNum]], video->getScreenId(), r.x, r.y);
 
 		letterNum++;
 		r.x += fontObj->tracking + fontObj->w;
@@ -101,10 +101,10 @@ void dText(font *fontObj, char *string, int x, int y, int alpha, shadowType with
 	}
 }
 
-void dTextEmerging(font *fontObj, char *string, int x, int y, int step, int alpha, shadowType withShadow)
+void dTextEmerging(const video *video, font *fontObj, char *string, int x, int y, int step, int alpha, shadowType withShadow)
 {
-	SDL_Rect r;
-	SDL_Rect clip;
+	rect r;
+	rect clip;
 	int letterNum = 0;
 	int origX = x;
 	int i;
@@ -135,9 +135,9 @@ void dTextEmerging(font *fontObj, char *string, int x, int y, int step, int alph
 		{
 			if (fontObj->shadow)
 			{
-				SDL_Rect clip;
+				rect clip;
 
-				SDL_SetAlpha(fontObj->shadow->tiles.image, SDL_SRCALPHA, alpha%256);
+				video->setAlpha(fontObj->shadow->tiles.image, alpha%256);
 
 				clip = fontObj->shadow->tiles.clip[(signed int)string[letterNum]];
 				clip.w = (drawAreaLen - r.x > clip.w ? clip.w : drawAreaLen - r.x);
@@ -145,19 +145,19 @@ void dTextEmerging(font *fontObj, char *string, int x, int y, int step, int alph
 				switch (withShadow)
 				{
 					case SHADOW_DROP:
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x + FONT_SHADOW_OFFSET_X, r.y);
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x, r.y + FONT_SHADOW_OFFSET_Y);
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x + FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x, r.y + FONT_SHADOW_OFFSET_Y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
 					break;
 					case SHADOW_OUTLINE:
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x - FONT_SHADOW_OFFSET_X, r.y);
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x + FONT_SHADOW_OFFSET_X, r.y);
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x, r.y - FONT_SHADOW_OFFSET_Y);
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x, r.y + FONT_SHADOW_OFFSET_Y);
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x - FONT_SHADOW_OFFSET_X, r.y - FONT_SHADOW_OFFSET_Y);
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x - FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x + FONT_SHADOW_OFFSET_X, r.y - FONT_SHADOW_OFFSET_Y);
-						drawImage(fontObj->shadow->tiles.image, &clip, screen, r.x + FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x - FONT_SHADOW_OFFSET_X, r.y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x, r.y - FONT_SHADOW_OFFSET_Y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x, r.y + FONT_SHADOW_OFFSET_Y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x - FONT_SHADOW_OFFSET_X, r.y - FONT_SHADOW_OFFSET_Y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x - FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y - FONT_SHADOW_OFFSET_Y);
+						video->drawImage(fontObj->shadow->tiles.image, &clip, video->getScreenId(), r.x + FONT_SHADOW_OFFSET_X, r.y + FONT_SHADOW_OFFSET_Y);
 					break;
 
 					default:
@@ -165,12 +165,12 @@ void dTextEmerging(font *fontObj, char *string, int x, int y, int step, int alph
 				}
 			}
 
-			SDL_SetAlpha(fontObj->tiles.image, SDL_SRCALPHA, alpha%256);
+			video->setAlpha(fontObj->tiles.image, alpha%256);
 
 			clip = fontObj->tiles.clip[(signed int)string[letterNum]];
 			clip.w = (drawAreaLen - r.x > clip.w ? clip.w : drawAreaLen - r.x);
 
-			drawImage(fontObj->tiles.image, &clip, screen, r.x, r.y);
+			video->drawImage(fontObj->tiles.image, &clip, video->getScreenId(), r.x, r.y);
 		}
 
 		letterNum++;
