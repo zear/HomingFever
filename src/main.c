@@ -43,6 +43,12 @@ void deinit()
 
 int main(int argc, char *argv[])
 {
+	const video video =
+	{
+		.frameLimiter = frameLimiterSDL,
+		.flipScreen = flipScreenSDL,
+		.clearScreen = clearScreenSDL,
+	};
 	int i;
 	quit = 0;
 
@@ -90,11 +96,11 @@ int main(int argc, char *argv[])
 
 	while(!quit)
 	{
-		if(!frameLimiter())
+		if(!video.frameLimiter())
 		{
 			input();
 			logic();
-			draw();
+			draw(&video);
 		}
 	}
 

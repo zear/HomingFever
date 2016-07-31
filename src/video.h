@@ -12,9 +12,18 @@
 #define SCREEN_SCALE 2
 #endif
 
+typedef int surfaceId;
+
 extern SDL_Surface *screen;
 extern int screenScale;
 extern int fullscreen;
+
+typedef struct video
+{
+	int (*frameLimiter)();
+	void (*flipScreen)();
+	void (*clearScreen)();
+} video;
 
 int initSDL();
 void deinitSDL();
@@ -25,8 +34,8 @@ void clipImage(SDL_Rect *source, int tileWidth, int tileHeight, int rowLength, i
 void drawImage(SDL_Surface *source, SDL_Rect *clip, SDL_Surface *destination, int x, int y);
 void drawBackground(SDL_Surface *destination, Uint32 color);
 void drawPoint(SDL_Surface *destination, int x, int y, Uint32 color);
-int frameLimiter();
-void flipScreen();
-void clearScreen();
+int frameLimiterSDL();
+void flipScreenSDL();
+void clearScreenSDL();
 
 #endif /* _VIDEO_H_ */
