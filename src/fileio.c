@@ -3,53 +3,48 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#if defined(HOME_DIR)
 #include <sys/stat.h>
+#endif
 #include "game.h"
 
-char *configDir;
+char configDir[FILE_MAX_PATH];
 
-void getConfigDir()
+int getConfigDir()
 {
+#if defined(HOME_DIR)
 	char *homeDir = getenv("HOME");
 
-	if(homeDir != NULL)
-	{
-		configDir = (char *)malloc(strlen(homeDir) + strlen("/.homingFever") + 1);
-		if(configDir != NULL)
-		{
-			sprintf(configDir, "%s/.homingFever", homeDir);
-			mkdir(configDir, 0755); /* Create the directory if it doesn't exist. */
-		}
-	}
+	if (!homeDir)
+		return -1;
+
+	if (snprintf(configDir, FILE_MAX_PATH, "%s/.homingFever", homeDir) >= FILE_MAX_PATH)
+		return -1;
+
+	mkdir(configDir, 0755); /* Create the directory if it doesn't exist. */
+#else
+	strcpy(configDir, ".");
+#endif
+	return 0;
 }
 
 void getConfig()
 {
 	FILE *f;
-	char *config;
+	char config[FILE_MAX_PATH];
 	char line[15];
 
-	if(!configDir)
+	if (snprintf(config, FILE_MAX_PATH, "%s/game.cfg", configDir) >= FILE_MAX_PATH)
 	{
-		printf("Config directory doesn't exist.\n");
+		printf("Failed to retrieve config file path.\n");
 		return;
 	}
-
-	config = (char *)malloc(strlen(configDir) + strlen("/game.cfg") + 1);
-
-	if(!config)
-	{
-		return;
-	}
-
-	sprintf(config, "%s/game.cfg", configDir);
 
 	f = fopen(config, "r");
 
 	if(f == NULL)
 	{
 		printf("Failed to open config file: \"%s\" for reading.\n", config);
-		free(config);
 		return;
 	}
 
@@ -87,73 +82,51 @@ void getConfig()
 	}
 
 	fclose(f);
-	free(config);
 }
 
 void storeConfig()
 {
 	FILE *f;
-	char *config;
+	char config[FILE_MAX_PATH];
 
-	if(!configDir)
+	if (snprintf(config, FILE_MAX_PATH, "%s/game.cfg", configDir) >= FILE_MAX_PATH)
 	{
-		printf("Config directory doesn't exist.\n");
+		printf("Failed to retrieve config file path.\n");
 		return;
 	}
-
-	config = (char *)malloc(strlen(configDir) + strlen("/game.cfg") + 1);
-
-	if(!config)
-	{
-		return;
-	}
-
-	sprintf(config, "%s/game.cfg", configDir);
 
 	f = fopen(config, "w");
 
 	if(f == NULL)
 	{
 		printf("Failed to open config file: \"%s\" for writing.\n", config);
-		free(config);
 		return;
 	}
 
 /*	fprintf(f, "HI %d\nHI2 %d\nHI3 %d\nHI4 %d\nHI5 %d\n", hiscore[0], hiscore[1], hiscore[2], hiscore[3], hiscore[4]);*/
 
 	fclose(f);
-	free(config);
 }
 
 
 void getHiscore()
 {
 	FILE *f;
-	char *save;
+	char save[FILE_MAX_PATH];
 	char header[] = HISCORE_HEADER;
 	uint8_t version;
 
-	if(!configDir)
+	if (snprintf(save, FILE_MAX_PATH, "%s/score.dat", configDir) >= FILE_MAX_PATH)
 	{
-		printf("Config directory doesn't exist.\n");
+		printf("Failed to retrieve save file path.\n");
 		return;
 	}
-
-	save = (char *)malloc(strlen(configDir) + strlen("/score.dat") + 1);
-
-	if(!save)
-	{
-		return;
-	}
-
-	sprintf(save, "%s/score.dat", configDir);
 
 	f = fopen(save, "rb");
 
 	if(f == NULL)
 	{
 		printf("Failed to open score file: \"%s\" for writing.\n", save);
-		free(save);
 		return;
 	}
 
@@ -163,7 +136,6 @@ void getHiscore()
 	{
 		printf("File \"%s\" is not a valid score file.\n", save);
 		fclose(f);
-		free(save);
 		return;
 	}
 
@@ -172,7 +144,6 @@ void getHiscore()
 	if (version != HISCORE_FORMAT_VERSION)
 	{
 		fclose(f);
-		free(save);
 		printf("Incompatible score file in version %d. Required version: %d.\n", version, SAVE_FORMAT_VERSION);
 		return;
 	}
@@ -180,37 +151,26 @@ void getHiscore()
 	(void)(fread(&bestTime, sizeof(uint16_t), 1, f) + 1);
 
 	fclose(f);
-	free(save);
 }
 
 void storeHiscore()
 {
 	FILE *f;
-	char *save;
+	char save[FILE_MAX_PATH];
 	char header[] = HISCORE_HEADER;
 	uint8_t version = HISCORE_FORMAT_VERSION;
 
-	if(!configDir)
+	if (snprintf(save, FILE_MAX_PATH, "%s/score.dat", configDir) >= FILE_MAX_PATH)
 	{
-		printf("Config directory doesn't exist.\n");
+		printf("Failed to retrieve save file path.\n");
 		return;
 	}
-
-	save = (char *)malloc(strlen(configDir) + strlen("/score.dat") + 1);
-
-	if(!save)
-	{
-		return;
-	}
-
-	sprintf(save, "%s/score.dat", configDir);
 
 	f = fopen(save, "wb");
 
 	if(f == NULL)
 	{
 		printf("Failed to open score file: \"%s\" for writing.\n", save);
-		free(save);
 		return;
 	}
 
@@ -219,5 +179,4 @@ void storeHiscore()
 	fwrite(&bestTime, sizeof(uint16_t), 1, f);
 
 	fclose(f);
-	free(save);
 }

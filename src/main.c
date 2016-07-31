@@ -10,7 +10,12 @@
 
 int init(const video *video)
 {
-	getConfigDir();
+	if (getConfigDir())
+	{
+		printf("Failed to retrieve config path.\n");
+		return -1;
+	}
+
 	getConfig();
 	getHiscore();
 
@@ -27,11 +32,6 @@ int init(const video *video)
 
 void deinit(const video *video)
 {
-	if(configDir)
-	{
-		free(configDir);
-	}
-
 	fontUnload(video, &gameFont);
 	fontUnload(video, &gameFontShadow);
 
