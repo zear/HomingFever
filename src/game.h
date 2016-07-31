@@ -25,9 +25,9 @@ extern int playerLastAngle;
 extern int playerPenaltyTimer;
 extern int gameOverTimer;
 
-void gameUnload();
-void gameLoad();
-void gameLogic();
-void gameDraw();
+void gameUnload(const video *);
+void gameLoad(const video *);
+void gameLogic(const video *);
+void gameDraw(const video *);
 
 #endif /* _GAME_H_ */

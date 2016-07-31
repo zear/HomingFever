@@ -16,8 +16,8 @@ extern int quit;
 extern State programStateActive;
 extern State programStateNew;
 
-void checkState();
-void logic();
+void checkState(const video *);
+void logic(const video *);
 void draw(const video *);
 
 #endif /* _STATES_H_ */

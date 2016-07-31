@@ -3,6 +3,7 @@
 
 #include "helpers.h"
 #include "tileset.h"
+#include "video.h"
 
 extern listElement *objTemplateListHead;
 
@@ -44,13 +45,13 @@ typedef struct object
 	int smoking;
 } object;
 
-object *objectTemplate(objectType type);
-void objectLoad(object *obj, objectType type);
-void objectItemDelete(void *item);
-void objectTemplateItemDelete(void *item);
+object *objectTemplate(const video *, objectType type);
+void objectLoad(const video *, object *obj, objectType type);
+void objectItemDelete(void *item, const void *data);
+void objectTemplateItemDelete(void *item, const void *data);
 int objectItemDisposedMatch(void *item);
 int objectCollisionCheck(object *obj, object *obj2);
-void objectLogic(object *obj);
-void objectDraw(object *obj);
+void objectLogic(const video *, object *obj);
+void objectDraw(const video *,object *obj);
 
 #endif /* _OBJECTS_H_ */

@@ -157,7 +157,7 @@ void getHiscore()
 		return;
 	}
 
-	fread(&header, sizeof(char), strlen(header), f);
+	(void)(fread(&header, sizeof(char), strlen(header), f) + 1);
 
 	if (strcmp(header, HISCORE_HEADER))
 	{
@@ -167,7 +167,7 @@ void getHiscore()
 		return;
 	}
 
-	fread(&version, sizeof(uint8_t), 1, f);
+	(void)(fread(&version, sizeof(uint8_t), 1, f) + 1);
 
 	if (version != HISCORE_FORMAT_VERSION)
 	{
@@ -177,7 +177,7 @@ void getHiscore()
 		return;
 	}
 
-	fread(&bestTime, sizeof(uint16_t), 1, f);
+	(void)(fread(&bestTime, sizeof(uint16_t), 1, f) + 1);
 
 	fclose(f);
 	free(save);
