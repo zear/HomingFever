@@ -151,7 +151,7 @@ void drawPoint(SDL_Surface *destination, int x, int y, Uint32 color)
 	SDL_FillRect(destination, &r, color);
 }
 
-int frameLimiter()
+int frameLimiterSDL()
 {
 	int t;
 
@@ -172,7 +172,7 @@ int frameLimiter()
 	return 1;
 }
 
-void flipScreen()
+void flipScreenSDL()
 {
 	switch (scale)
 	{
@@ -191,7 +191,7 @@ void flipScreen()
 	}
 }
 
-void clearScreen()
+void clearScreenSDL()
 {
 	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 }

@@ -62,9 +62,9 @@ void logic()
 	}
 }
 
-void draw()
+void draw(const video *video)
 {
-	clearScreen();
+	video->clearScreen();
 
 	switch (programStateActive)
 	{
@@ -79,5 +79,5 @@ void draw()
 		break;
 	}
 
-	flipScreen();
+	video->flipScreen();
 }
