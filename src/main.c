@@ -19,6 +19,9 @@ int init()
 	getConfig();
 	getHiscore();
 
+	if (screenScale <= 0 || screenScale > 2)
+		screenScale = SCREEN_SCALE;
+
 	if(initSDL())
 	{
 		return -1;
@@ -68,8 +71,8 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				scale = atoi(argv[i+1]);
-				if (scale < 1 || scale > 2)
+				screenScale = atoi(argv[i+1]);
+				if (screenScale < 1 || screenScale > 2)
 				{
 					printf("Invalid value '%s' for %s.\nValue must be between [1-2].\n", argv[i+1], argv[i]);
 					return 1;

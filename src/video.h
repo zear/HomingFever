@@ -15,7 +15,8 @@
 extern SDL_Surface *screen;
 extern int blinkTimer;
 extern int blinkTimerSlow;
-extern int scale;
+extern int screenScale;
+extern int fullscreen;
 
 int initSDL();
 void deinitSDL();

@@ -7,7 +7,8 @@
 
 SDL_Surface *screen;
 SDL_Surface *screenScaled;
-int scale = SCREEN_SCALE;
+int screenScale;
+int fullscreen;
 Uint32 curTicks;
 Uint32 lastTicks = 0;
 
@@ -43,7 +44,7 @@ void deinitSDL()
 		SDL_JoystickClose(joyDevice);
 	}
 
-	if (scale > 1)
+	if (screenScale > 1)
 	{
 		SDL_FreeSurface(screen);
 	}
@@ -58,8 +59,8 @@ void updateScale()
 		SDL_FreeSurface(screen);
 	}
 
-	screenScaled = SDL_SetVideoMode(SCREEN_W * scale, SCREEN_H * scale, SCREEN_BPP, SDL_HWSURFACE | SDL_DOUBLEBUF);
-	screen = scale > 1 ? SDL_CreateRGBSurface(SDL_SWSURFACE, SCREEN_W, SCREEN_H, SCREEN_BPP, 0, 0, 0, 0) : screenScaled;
+	screenScaled = SDL_SetVideoMode(SCREEN_W * screenScale, SCREEN_H * screenScale, SCREEN_BPP, SDL_HWSURFACE | SDL_DOUBLEBUF | (fullscreen ? SDL_FULLSCREEN : 0));
+	screen = screenScale > 1 ? SDL_CreateRGBSurface(SDL_SWSURFACE, SCREEN_W, SCREEN_H, SCREEN_BPP, 0, 0, 0, 0) : screenScaled;
 }
 
 Uint32 getColor(Uint8 r, Uint8 g, Uint8 b)
@@ -87,7 +88,7 @@ SDL_Surface *loadImage(char *fileName)
 		return NULL;
 	}
 
-	optimizedImage = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_DOUBLEBUF, loadedImage->w, loadedImage->h, SCREEN_BPP, 0, 0, 0, 0);
+	optimizedImage = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_DOUBLEBUF | (fullscreen ? SDL_FULLSCREEN : 0), loadedImage->w, loadedImage->h, SCREEN_BPP, 0, 0, 0, 0);
 	SDL_BlitSurface(loadedImage, NULL, optimizedImage, NULL);
 	SDL_FreeSurface(loadedImage);
 
@@ -175,7 +176,7 @@ int frameLimiter()
 
 void flipScreen()
 {
-	switch (scale)
+	switch (screenScale)
 	{
 		case 1:
 		break;
