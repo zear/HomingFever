@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include "debug.h"
+#include "input.h"
 #include "scaler.h"
 
 SDL_Surface *screen;
@@ -27,9 +28,9 @@ int initSDL()
 		return -1;
 	}
 
-	if(SDL_NumJoysticks() > 0)
+	if(SDL_NumJoysticks() > joyNum)
 	{
-		SDL_JoystickOpen(0);
+		joyDevice = SDL_JoystickOpen(joyNum);
 	}
 
 	return 0;
@@ -37,9 +38,9 @@ int initSDL()
 
 void deinitSDL()
 {
-	if(SDL_NumJoysticks() > 0)
+	if(joyDevice)
 	{
-		SDL_JoystickClose(0);
+		SDL_JoystickClose(joyDevice);
 	}
 
 	if (scale > 1)

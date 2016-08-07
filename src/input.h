@@ -34,6 +34,8 @@ typedef struct JoystickData
 } JoystickData;
 
 extern int keys[2048];
+extern SDL_Joystick *joyDevice;
+extern int joyNum;
 extern JoystickMode joyMode;
 extern JoystickData joyData;
 extern int joyDeadzone;

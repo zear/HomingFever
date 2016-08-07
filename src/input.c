@@ -5,6 +5,8 @@
 
 SDL_Event event;
 int keys[2048];
+SDL_Joystick *joyDevice;
+int joyNum;
 JoystickMode joyMode = JOY_MODE_ANALOG;
 JoystickData joyData = {0, 0, 1, 1};
 int joyDeadzone = JOY_DEADZONE;
