@@ -7,10 +7,6 @@
 #include "video.h"
 #include "objects.h"
 
-#define TEXT_PAGES	5
-#define TEXT_LINES	6
-#define FADE_OUT_TIME	30
-
 int titleTime;
 int textIndex;
 int textTimer;
@@ -99,9 +95,9 @@ void titleDraw()
 	int fontX = SCREEN_W/2 - (strlen("H O M I N G     F E V E R") * (gameFont.w + gameFont.tracking))/2;
 	int fontStep = (missile.x < fontX ? 0 : missile.x - fontX);
 
-	char text[TEXT_PAGES][TEXT_LINES][100];
+	char text[TEXT_PAGES][TEXT_LINES][TEXT_LINE_LEN];
 
-	memset(text, 0, TEXT_PAGES*TEXT_LINES*100);
+	memset(text, 0, TEXT_PAGES*TEXT_LINES*TEXT_LINE_LEN);
 	sprintf(text[0][1], "Press A or START to play");
 	sprintf(text[0][3], "or SELECT to exit");
 
@@ -120,8 +116,9 @@ void titleDraw()
 	sprintf(text[4][1], "GhostlyDeath");
 	sprintf(text[4][2], "jxv");
 	sprintf(text[4][3], "Nebuleon");
-	sprintf(text[4][4], "Senquack");
-	sprintf(text[4][5], "Surkow");
+	sprintf(text[4][4], "pcercuei");
+	sprintf(text[4][5], "Senquack");
+	sprintf(text[4][6], "Surkow");
 
 	drawBackground(screen, getColor(0, 0, 128));
 
