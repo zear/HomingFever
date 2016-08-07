@@ -7,6 +7,7 @@ SDL_Event event;
 int keys[2048];
 JoystickMode joyMode = JOY_MODE_ANALOG;
 JoystickData joyData = {0, 0, 1, 1};
+int joyDeadzone = JOY_DEADZONE;
 
 void input()
 {
@@ -39,13 +40,13 @@ void input()
 						switch(event.jaxis.axis)
 						{
 							case 0:		/* Axis 0 (left-right). */
-								if(event.jaxis.value < -JOY_DEADZONE)
+								if(event.jaxis.value < -joyDeadzone)
 								{
 									/* Left movement. */
 									keys[SDLK_LEFT] = 1;
 									keys[SDLK_RIGHT] = 0;
 								}
-								else if(event.jaxis.value > JOY_DEADZONE)
+								else if(event.jaxis.value > joyDeadzone)
 								{
 									/* Right movement. */
 									keys[SDLK_LEFT] = 0;
@@ -58,13 +59,13 @@ void input()
 								}
 							break;
 							case 1:		/* Axis 1 (up-down). */
-								if(event.jaxis.value < -JOY_DEADZONE)
+								if(event.jaxis.value < -joyDeadzone)
 								{
 									/* Up movement. */
 									keys[SDLK_UP] = 1;
 									keys[SDLK_DOWN] = 0;
 								}
-								else if(event.jaxis.value > JOY_DEADZONE)
+								else if(event.jaxis.value > joyDeadzone)
 								{
 									/* Down movement. */
 									keys[SDLK_UP] = 0;
@@ -86,11 +87,11 @@ void input()
 						{
 							case 0:
 								joyData.x = event.jaxis.value;
-								joyData.inDeadzoneX = (event.jaxis.value > -JOY_DEADZONE && event.jaxis.value < JOY_DEADZONE) ? 1 : 0;
+								joyData.inDeadzoneX = (event.jaxis.value > -joyDeadzone && event.jaxis.value < joyDeadzone) ? 1 : 0;
 							break;
 							case 1:
 								joyData.y = event.jaxis.value;
-								joyData.inDeadzoneY = (event.jaxis.value > -JOY_DEADZONE && event.jaxis.value < JOY_DEADZONE) ? 1 : 0;
+								joyData.inDeadzoneY = (event.jaxis.value > -joyDeadzone && event.jaxis.value < joyDeadzone) ? 1 : 0;
 							break;
 
 							default:
