@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #endif
 #include "game.h"
+#include "input.h"
+#include "video.h"
 
 char configDir[FILE_MAX_PATH];
 
@@ -32,7 +34,7 @@ void getConfig()
 {
 	FILE *f;
 	char config[FILE_MAX_PATH];
-	char line[15];
+	char line[100];
 
 	if (snprintf(config, FILE_MAX_PATH, "%s/game.cfg", configDir) >= FILE_MAX_PATH)
 	{
@@ -59,26 +61,19 @@ void getConfig()
 		*arg = '\0';
 		arg++;
 
-/*		if(!strcmp(line, "HI"))*/
-/*		{*/
-/*			sscanf(arg, "%d", &hiscore[0]);*/
-/*		}*/
-/*		else if(!strcmp(line, "HI2"))*/
-/*		{*/
-/*			sscanf(arg, "%d", &hiscore[1]);*/
-/*		}*/
-/*		else if(!strcmp(line, "HI3"))*/
-/*		{*/
-/*			sscanf(arg, "%d", &hiscore[2]);*/
-/*		}*/
-/*		else if(!strcmp(line, "HI4"))*/
-/*		{*/
-/*			sscanf(arg, "%d", &hiscore[3]);*/
-/*		}*/
-/*		else if(!strcmp(line, "HI5"))*/
-/*		{*/
-/*			sscanf(arg, "%d", &hiscore[4]);*/
-/*		}*/
+		if (line[0] == '#')
+			continue;
+
+		if (!strcmp(line, "JOY_MODE"))
+			sscanf(arg, "%d", (int *)&joyMode);
+		else if (!strcmp(line, "JOY_NUM"))
+			sscanf(arg, "%d", (int *)&joyNum);
+		else if (!strcmp(line, "JOY_DEADZONE"))
+			sscanf(arg, "%d", (int *)&joyDeadzone);
+		else if (!strcmp(line, "SCALE") && !screenScale)
+			sscanf(arg, "%d", (int *)&screenScale);
+		else if (!strcmp(line, "FULLSCREEN"))
+			sscanf(arg, "%d", (int *)&fullscreen);
 	}
 
 	fclose(f);
@@ -103,7 +98,16 @@ void storeConfig()
 		return;
 	}
 
-/*	fprintf(f, "HI %d\nHI2 %d\nHI3 %d\nHI4 %d\nHI5 %d\n", hiscore[0], hiscore[1], hiscore[2], hiscore[3], hiscore[4]);*/
+	fprintf(f, "# Joystick control mode. Value: 0 - off, 1 - digital, 2 - analog\n");
+	fprintf(f, "JOY_MODE %d\n\n", joyMode);
+	fprintf(f, "# Joystick device number. Value: 0 - first joystick, 1 - second joystick, etc.\n");
+	fprintf(f, "JOY_NUM %d\n\n", joyNum);
+	fprintf(f, "# Joystick deadzone. Value range: 0 - 65535\n");
+	fprintf(f, "JOY_DEADZONE %d\n\n", joyDeadzone);
+	fprintf(f, "# Screen scale. Value: 1 - original, 2 - double\n");
+	fprintf(f, "SCALE %d\n\n", screenScale);
+	fprintf(f, "# Display mode. Value: 0 - windowed, 1 - fullscreen\n");
+	fprintf(f, "FULLSCREEN %d\n", fullscreen);
 
 	fclose(f);
 }
