@@ -64,8 +64,8 @@ ifeq ($(PLATFORM), gcw0)
 	mkdir -p		$(RELEASEDIR)
 	cp $(TARGET)		$(RELEASEDIR)
 	cp -R data		$(RELEASEDIR)
-	cp default.gcw0.desktop	$(RELEASEDIR)
-	cp fever.png		$(RELEASEDIR)
+	cp platform/gcw0/*	$(RELEASEDIR)
+	cp LICENSE.txt		$(RELEASEDIR)
 	cp README.md		$(RELEASEDIR)
 	mksquashfs		$(RELEASEDIR) homingFever.opk -all-root -noappend -no-exports -no-xattrs
 endif
