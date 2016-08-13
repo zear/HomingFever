@@ -94,15 +94,18 @@ void titleDraw()
 	int i;
 	int fontX = SCREEN_W/2 - (strlen("H O M I N G     F E V E R") * (gameFont.w + gameFont.tracking))/2;
 	int fontStep = (missile.x < fontX ? 0 : missile.x - fontX);
-
+	char bestTimeStr[10] = "-'--\"--";
 	char text[TEXT_PAGES][TEXT_LINES][TEXT_LINE_LEN];
+
+	if (bestTime)
+		sprintf(bestTimeStr, "%d'%02d\"%02d", bestTime/60/60, bestTime/60%60, bestTime%60*1000/600);
 
 	memset(text, 0, TEXT_PAGES*TEXT_LINES*TEXT_LINE_LEN);
 	sprintf(text[0][1], "Press A or START to play");
 	sprintf(text[0][3], "or SELECT to exit");
 
 	sprintf(text[1][0], "Best time");
-	sprintf(text[1][1], "%d'%02d\"%02d", bestTime/60/60, bestTime/60%60, bestTime%60*1000/600);
+	sprintf(text[1][1], "%s", bestTimeStr);
 
 	sprintf(text[2][0], "Your mission");
 	sprintf(text[2][1], "To avoid missiles");
