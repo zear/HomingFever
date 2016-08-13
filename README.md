@@ -1,5 +1,9 @@
 # Homing Fever
 
+About
+-----
+Inspired by "[Missiles!](http://macaquegames.com)", Homing Fever is an addictive obstacle dodging game.
+
 Game goal
 ---------
 Avoid missiles and stay alive as long as you can.
