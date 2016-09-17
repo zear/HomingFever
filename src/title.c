@@ -16,13 +16,13 @@ int fadeOut;
 int fadeOutTimer;
 object missile;
 
-void titleUnload()
+void titleUnload(const video *video)
 {
-	objTemplateListHead = listElementDeleteAll(objTemplateListHead, objectTemplateItemDelete);
+	objTemplateListHead = listElementDeleteAll(objTemplateListHead, objectTemplateItemDelete, video);
 	showIntro = 0;
 }
 
-void titleLoad()
+void titleLoad(const video *video)
 {
 	titleTime = 0;
 	textTimer = 0;
@@ -32,7 +32,7 @@ void titleLoad()
 	fadeOutTimer = 0;
 
 
-	objectLoad(&missile, OBJ_MISSILE_YELLOW);
+	objectLoad(video, &missile, OBJ_MISSILE_YELLOW);
 	missile.x = showIntro ? -missile.w : SCREEN_W;
 	missile.y = 40;
 	missile.angle = 270;
@@ -89,7 +89,7 @@ void titleLogic()
 		missile.x += 2;
 }
 
-void titleDraw()
+void titleDraw(const video *video)
 {
 	int i;
 	int fontX = SCREEN_W/2 - (strlen("H O M I N G     F E V E R") * (gameFont.w + gameFont.tracking))/2;
@@ -123,7 +123,7 @@ void titleDraw()
 	sprintf(text[4][5], "Senquack");
 	sprintf(text[4][6], "Surkow");
 
-	drawBackground(screen, getColor(0, 0, 128));
+	video->drawBackground(video->getScreenId(), getColor(0, 0, 128));
 
 	for (i = 0; i < SCREEN_W + 16; i += 16)
 	{
@@ -133,14 +133,14 @@ void titleDraw()
 			int x = i % 16;
 			int y = j % 16;
 
-			drawPoint(screen, i - x, j - y, getColor(0, 0, 224));
+			video->drawPoint(video->getScreenId(), i - x, j - y, getColor(0, 0, 224));
 		}
 	}
 
 	if (titleTime >= 60)
-		drawImage(missile.tiles->image, &missile.tiles->clip[((360 - missile.angle)/22)%missile.tiles->length], screen, missile.x, missile.y);
+		video->drawImage(missile.tiles->image, &missile.tiles->clip[((360 - missile.angle)/22)%missile.tiles->length], video->getScreenId(), missile.x, missile.y);
 
-	dTextEmerging(&gameFont, "H O M I N G     F E V E R", fontX, 40, fontStep, fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, SHADOW_OUTLINE);
+	dTextEmerging(video, &gameFont, "H O M I N G     F E V E R", fontX, 40, fontStep, fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, SHADOW_OUTLINE);
 
 	if (missile.x >= SCREEN_W)
 	{
@@ -165,7 +165,7 @@ void titleDraw()
 			if (!i || (textStep[i-1] > strlen(text[textIndex][i-1]) * (gameFont.w + gameFont.tracking)))
 				textStep[i] += 2;
 
-			dTextEmerging(&gameFont, text[textIndex][i], (SCREEN_W/2 - (strlen(text[textIndex][i]) * (gameFont.w + gameFont.tracking))/2), SCREEN_H/2 - ((gameFont.h + gameFont.leading)*TEXT_PAGES)/2 + (i ? (gameFont.h + gameFont.leading) * (i + 1): 0), textStep[i], fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, i ? SHADOW_DROP : SHADOW_OUTLINE);
+			dTextEmerging(video, &gameFont, text[textIndex][i], (SCREEN_W/2 - (strlen(text[textIndex][i]) * (gameFont.w + gameFont.tracking))/2), SCREEN_H/2 - ((gameFont.h + gameFont.leading)*TEXT_PAGES)/2 + (i ? (gameFont.h + gameFont.leading) * (i + 1): 0), textStep[i], fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, i ? SHADOW_DROP : SHADOW_OUTLINE);
 		}
 
 /*		dTextCentered(&gameFont, "<-  Control: D-PAD  ->", SCREEN_H/2 + 50 + (gameFont.h + gameFont.leading) * 3, fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, SHADOW_DROP);*/

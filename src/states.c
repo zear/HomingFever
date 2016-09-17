@@ -9,7 +9,7 @@ int quit;
 State programStateActive = STATE_NONE;
 State programStateNew = STATE_TITLE;
 
-void checkState()
+void checkState(const video *video)
 {
 	if (programStateActive != programStateNew)
 	{
@@ -17,10 +17,10 @@ void checkState()
 		switch (programStateActive)
 		{
 			case STATE_TITLE:
-				titleUnload();
+				titleUnload(video);
 			break;
 			case STATE_GAME:
-				gameUnload();
+				gameUnload(video);
 			break;
 
 			default:
@@ -30,10 +30,10 @@ void checkState()
 		switch (programStateNew)
 		{
 			case STATE_TITLE:
-				titleLoad();
+				titleLoad(video);
 			break;
 			case STATE_GAME:
-				gameLoad();
+				gameLoad(video);
 			break;
 
 			default:
@@ -44,9 +44,9 @@ void checkState()
 	}
 }
 
-void logic()
+void logic(const video *video)
 {
-	checkState();
+	checkState(video);
 
 	switch (programStateActive)
 	{
@@ -54,7 +54,7 @@ void logic()
 			titleLogic();
 		break;
 		case STATE_GAME:
-			gameLogic();
+			gameLogic(video);
 		break;
 
 		default:
@@ -69,10 +69,10 @@ void draw(const video *video)
 	switch (programStateActive)
 	{
 		case STATE_TITLE:
-			titleDraw();
+			titleDraw(video);
 		break;
 		case STATE_GAME:
-			gameDraw();
+			gameDraw(video);
 		break;
 
 		default:

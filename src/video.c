@@ -12,6 +12,17 @@ int fullscreen;
 Uint32 curTicks;
 Uint32 lastTicks = 0;
 
+#define MAX_SURFACES 2048
+
+int surfaceTail = 0;
+surfaceId screenId = -1;
+SDL_Surface *surfaces[MAX_SURFACES];
+
+surfaceId getScreenIdSDL()
+{
+	return screenId;
+}
+
 int initSDL()
 {
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK))
@@ -22,7 +33,7 @@ int initSDL()
 	SDL_WM_SetCaption("Homing Fever", NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 
-	updateScale();
+	updateScaleSDL();
 
 	if(screen == NULL)
 	{
@@ -52,7 +63,7 @@ void deinitSDL()
 	SDL_Quit();
 }
 
-void updateScale()
+void updateScaleSDL()
 {
 	if (screen != screenScaled)
 	{
@@ -61,6 +72,10 @@ void updateScale()
 
 	screenScaled = SDL_SetVideoMode(SCREEN_W * screenScale, SCREEN_H * screenScale, SCREEN_BPP, SDL_HWSURFACE | SDL_DOUBLEBUF | (fullscreen ? SDL_FULLSCREEN : 0));
 	screen = screenScale > 1 ? SDL_CreateRGBSurface(SDL_SWSURFACE, SCREEN_W, SCREEN_H, SCREEN_BPP, 0, 0, 0, 0) : screenScaled;
+
+	surfaces[surfaceTail] = screen;
+	screenId = surfaceTail;
+	surfaceTail++;
 }
 
 Uint32 getColor(Uint8 r, Uint8 g, Uint8 b)
@@ -68,16 +83,32 @@ Uint32 getColor(Uint8 r, Uint8 g, Uint8 b)
 	return SDL_MapRGB(screen->format, r, g, b);
 }
 
-SDL_Surface *loadImage(char *fileName)
+void unloadImageSDL(surfaceId id)
+{
+	SDL_FreeSurface(surfaces[id]);
+}
+
+void setAlphaSDL(surfaceId id, Uint8 alpha)
+{
+	SDL_SetAlpha(surfaces[id], SDL_SRCALPHA, alpha);
+}
+
+surfaceId loadImageSDL(char *fileName)
 {
 	SDL_Surface *loadedImage;
 	SDL_Surface *optimizedImage;
 	Uint32 colorKey;
 
+	if (surfaceTail >= MAX_SURFACES)
+	{
+		fprintf(stderr, "ERROR: Maximum images loaded.");
+		return -1;
+	}
+
 	if (!fileName)
 	{
 		fprintf(stderr, "ERROR: Filename is empty.");
-		return NULL;
+		return -1;
 	}
 
 	loadedImage = SDL_LoadBMP(fileName);
@@ -85,26 +116,28 @@ SDL_Surface *loadImage(char *fileName)
 	if (!loadedImage)
 	{
 		fprintf(stderr, "ERROR: Failed to load image: %s\n", fileName);
-		return NULL;
+		return -1;
 	}
 
-	optimizedImage = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_DOUBLEBUF | (fullscreen ? SDL_FULLSCREEN : 0), loadedImage->w, loadedImage->h, SCREEN_BPP, 0, 0, 0, 0);
+	optimizedImage = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_DOUBLEBUF, loadedImage->w, loadedImage->h, SCREEN_BPP, 0, 0, 0, 0);
 	SDL_BlitSurface(loadedImage, NULL, optimizedImage, NULL);
 	SDL_FreeSurface(loadedImage);
 
 	if (!optimizedImage)
 	{
 		fprintf(stderr, "ERROR: Failed to optimize image: %s\n", fileName);
-		return NULL;
+		return -1;
 	}
 
 	colorKey = SDL_MapRGB(optimizedImage->format, 255, 0, 255); /* Set transparency to magenta. */
 	SDL_SetColorKey(optimizedImage, SDL_SRCCOLORKEY, colorKey);
 
-	return optimizedImage;
+	surfaces[surfaceTail] = optimizedImage;
+	surfaceTail++;
+	return surfaceTail - 1;
 }
 
-void clipImage(SDL_Rect *source, int tileWidth, int tileHeight, int rowLength, int numOfTiles)
+void clipImageSDL(rect *source, int tileWidth, int tileHeight, int rowLength, int numOfTiles)
 {
 	int i;
 	int j;
@@ -126,22 +159,34 @@ void clipImage(SDL_Rect *source, int tileWidth, int tileHeight, int rowLength, i
 	}
 }
 
-void drawImage(SDL_Surface *source, SDL_Rect *clip, SDL_Surface *destination, int x, int y)
+void drawImageSDL(surfaceId source, rect *clip, surfaceId destination, int x, int y)
 {
 	SDL_Rect offset;
 
 	offset.x = x;
 	offset.y = y;
 
-	SDL_BlitSurface(source, clip, destination, &offset);
+	if (clip)
+	{
+		SDL_Rect clipSDL =
+		{
+		 	.x = clip->x,
+			.y = clip->y,
+			.w = clip->w,
+			.h = clip->h,
+		};
+		SDL_BlitSurface(surfaces[source], &clipSDL, surfaces[destination], &offset);
+	} else {
+		SDL_BlitSurface(surfaces[source], NULL, surfaces[destination], &offset);
+	}
 }
 
-void drawBackground(SDL_Surface *destination, Uint32 color)
+void drawBackgroundSDL(surfaceId destination, Uint32 color)
 {
-	SDL_FillRect(destination, NULL, color);
+	SDL_FillRect(surfaces[destination], NULL, color);
 }
 
-void drawPoint(SDL_Surface *destination, int x, int y, Uint32 color)
+void drawPointSDL(surfaceId destination, int x, int y, Uint32 color)
 {
 	SDL_Rect r;
 
@@ -150,7 +195,25 @@ void drawPoint(SDL_Surface *destination, int x, int y, Uint32 color)
 	r.w = 1;
 	r.h = 1;
 
-	SDL_FillRect(destination, &r, color);
+	SDL_FillRect(surfaces[destination], &r, color);
+}
+
+
+void fillRectSDL(surfaceId destination, rect *rect, Uint8 r, Uint8 g, Uint8 b)
+{
+	if (rect)
+	{
+		SDL_Rect clip =
+		{
+			.x = rect->x,
+			.y = rect->y,
+			.w = rect->w,
+			.h = rect->h,
+		};
+		SDL_FillRect(surfaces[destination], &clip, SDL_MapRGB(surfaces[destination]->format, r, g, b));
+	} else {
+		SDL_FillRect(surfaces[destination], NULL, SDL_MapRGB(surfaces[destination]->format, r, g, b));
+	}
 }
 
 int frameLimiterSDL()
