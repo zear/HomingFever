@@ -331,7 +331,7 @@ void gameDraw(const video *video)
 		r.w = 2;
 		r.h = 2;
 
-		video->fillRect(screen, &r, 255, 0, 0);
+		video->fillRect(video->getScreenId(), &r, 255, 0, 0);
 	}
 #endif
 
@@ -372,7 +372,7 @@ void gameDraw(const video *video)
 
 #if defined(DEBUG)
 	sprintf(debugStr, "Obj: %u\n(%03d,%03d)", listLength(objListHead), (int)playerObj->x, (int)playerObj->y);
-	dText(&gameFont, debugStr, gameFont.tracking + 1, SCREEN_H - (gameFont.h + gameFont.leading) * 2 - 1, ALPHA_OPAQUE, SHADOW_DROP);
+	dText(video, &gameFont, debugStr, gameFont.tracking + 1, SCREEN_H - (gameFont.h + gameFont.leading) * 2 - 1, ALPHA_OPAQUE, SHADOW_DROP);
 #endif
 
 	if (!bestTime && gameTime < 60*4)

@@ -43,23 +43,22 @@ void deinit(const video *video)
 
 int main(int argc, char *argv[])
 {
-	const video video =
-	{
-		.getScreenId = getScreenIdSDL,
-		.loadImage = loadImageSDL,
-		.unloadImage = unloadImageSDL,
-		.setAlpha = setAlphaSDL,
-		.clipImage = clipImageSDL,
-		.drawImage = drawImageSDL,
-		.drawBackground = drawBackgroundSDL,
-		.drawPoint = drawPointSDL,
-		.fillRect = fillRectSDL,
-		.frameLimiter = frameLimiterSDL,
-		.flipScreen = flipScreenSDL,
-		.clearScreen = clearScreenSDL,
-	};
+	video video;
 	int i;
 	quit = 0;
+
+	video.getScreenId = getScreenIdSDL;
+	video.loadImage = loadImageSDL;
+	video.unloadImage = unloadImageSDL;
+	video.setAlpha = setAlphaSDL;
+	video.clipImage = clipImageSDL;
+	video.drawImage = drawImageSDL;
+	video.drawBackground = drawBackgroundSDL;
+	video.drawPoint = drawPointSDL;
+	video.fillRect = fillRectSDL;
+	video.frameLimiter = frameLimiterSDL;
+	video.flipScreen = flipScreenSDL;
+	video.clearScreen = clearScreenSDL;
 
 	for(i = 1; i < argc; i++)
 	{

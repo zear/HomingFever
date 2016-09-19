@@ -168,13 +168,11 @@ void drawImageSDL(surfaceId source, rect *clip, surfaceId destination, int x, in
 
 	if (clip)
 	{
-		SDL_Rect clipSDL =
-		{
-		 	.x = clip->x,
-			.y = clip->y,
-			.w = clip->w,
-			.h = clip->h,
-		};
+		SDL_Rect clipSDL;
+		clipSDL.x = clip->x;
+		clipSDL.y = clip->y;
+		clipSDL.w = clip->w;
+		clipSDL.h = clip->h;
 		SDL_BlitSurface(surfaces[source], &clipSDL, surfaces[destination], &offset);
 	} else {
 		SDL_BlitSurface(surfaces[source], NULL, surfaces[destination], &offset);
@@ -203,13 +201,11 @@ void fillRectSDL(surfaceId destination, rect *rect, Uint8 r, Uint8 g, Uint8 b)
 {
 	if (rect)
 	{
-		SDL_Rect clip =
-		{
-			.x = rect->x,
-			.y = rect->y,
-			.w = rect->w,
-			.h = rect->h,
-		};
+		SDL_Rect clip;
+		clip.x = rect->x;
+		clip.y = rect->y;
+		clip.w = rect->w;
+		clip.h = rect->h;
 		SDL_FillRect(surfaces[destination], &clip, SDL_MapRGB(surfaces[destination]->format, r, g, b));
 	} else {
 		SDL_FillRect(surfaces[destination], NULL, SDL_MapRGB(surfaces[destination]->format, r, g, b));

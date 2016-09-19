@@ -114,6 +114,8 @@ void objectItemDelete(void *item, const void *data)
 {
 	object *obj = (object *)item;
 
+	(void)(data);
+
 	free(obj);
 }
 
