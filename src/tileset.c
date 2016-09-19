@@ -1,9 +1,10 @@
 #include "tileset.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "video.h"
 
-void tilesetLoad(tileset *tSet, char *fileName, int width, int height, int rowLen, int length)
+void tilesetLoad(const video *video, tileset *tSet, char *fileName, int width, int height, int rowLen, int length)
 {
 	if (!tSet)
 	{
@@ -15,7 +16,7 @@ void tilesetLoad(tileset *tSet, char *fileName, int width, int height, int rowLe
 		return;
 	}
 
-	tSet->image = loadImage(fileName);
+	tSet->image = video->loadImage(fileName);
 	if (!tSet->image)
 	{
 		fprintf(stderr, "ERROR: Failed to load file: %s\n", fileName);
@@ -24,27 +25,27 @@ void tilesetLoad(tileset *tSet, char *fileName, int width, int height, int rowLe
 
 	if (!tSet->clip)
 	{
-		tSet->clip = malloc(sizeof(SDL_Rect) * length);
+		tSet->clip = malloc(sizeof(rect) * length);
 		if (!tSet->clip)
 		{
 			fprintf(stderr, "ERROR: Not enough memory for allocation.\n");
 			return;
 		}
 	}
-	clipImage(tSet->clip, width, height, rowLen, length);
+	video->clipImage(tSet->clip, width, height, rowLen, length);
 	tSet->rowLen = rowLen;
 	tSet->length = length;
 }
 
-void tilesetUnload(tileset *tSet)
+void tilesetUnload(const video *video, tileset *tSet)
 {
 	if (!tSet)
 	{
 		return;
 	}
 
-	SDL_FreeSurface(tSet->image);
-	tSet->image = NULL;
+	video->unloadImage(tSet->image);
+	tSet->image = -1;
 	free(tSet->clip);
 	tSet->clip = NULL;
 }

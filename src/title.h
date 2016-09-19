@@ -6,9 +6,11 @@
 #define TEXT_LINE_LEN	100
 #define FADE_OUT_TIME	30
 
-void titleUnload();
-void titleLoad();
+#include "video.h"
+
+void titleUnload(const video *);
+void titleLoad(const video *);
 void titleLogic();
-void titleDraw();
+void titleDraw(const video *);
 
 #endif /* _TITLE_H_ */

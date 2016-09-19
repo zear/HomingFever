@@ -5,11 +5,10 @@
 #include "helpers.h"
 #include "input.h"
 #include "tileset.h"
-#include "video.h"
 
 listElement *objTemplateListHead;
 
-object *objectTemplate(objectType type)
+object *objectTemplate(const video *video, objectType type)
 {
 	object newObj;
 	listElement *curNode = objTemplateListHead;
@@ -32,14 +31,14 @@ object *objectTemplate(objectType type)
 	switch (newObj.type)
 	{
 		case OBJ_PLAYER:
-			tilesetLoad(newObj.tiles, "data/gfx/player.bmp", 16, 16, 8, 32);
+			tilesetLoad(video, newObj.tiles, "data/gfx/player.bmp", 16, 16, 8, 32);
 			newObj.w = 16;
 			newObj.h = 16;
 			newObj.hitboxW = 10;
 			newObj.hitboxH = 10;
 		break;
 		case OBJ_MISSILE_RED:
-			tilesetLoad(newObj.tiles, "data/gfx/missileRed.bmp", 8, 8, 8, 16);
+			tilesetLoad(video, newObj.tiles, "data/gfx/missileRed.bmp", 8, 8, 8, 16);
 			newObj.w = 8;
 			newObj.h = 8;
 			newObj.hitboxW = 6;
@@ -50,7 +49,7 @@ object *objectTemplate(objectType type)
 			newObj.turnStep = 9;
 		break;
 		case OBJ_MISSILE_BLUE:
-			tilesetLoad(newObj.tiles, "data/gfx/missileBlue.bmp", 8, 8, 8, 16);
+			tilesetLoad(video, newObj.tiles, "data/gfx/missileBlue.bmp", 8, 8, 8, 16);
 			newObj.w = 8;
 			newObj.h = 8;
 			newObj.hitboxW = 6;
@@ -61,7 +60,7 @@ object *objectTemplate(objectType type)
 			newObj.turnStep = 3;
 		break;
 		case OBJ_MISSILE_YELLOW:
-			tilesetLoad(newObj.tiles, "data/gfx/missileYellow.bmp", 8, 8, 8, 16);
+			tilesetLoad(video, newObj.tiles, "data/gfx/missileYellow.bmp", 8, 8, 8, 16);
 			newObj.w = 8;
 			newObj.h = 8;
 			newObj.hitboxW = 6;
@@ -72,7 +71,7 @@ object *objectTemplate(objectType type)
 			newObj.turnStep = 6;
 		break;
 		case OBJ_CLOUD:
-			tilesetLoad(newObj.tiles, "data/gfx/cloud.bmp", 3, 3, 1, 1);
+			tilesetLoad(video, newObj.tiles, "data/gfx/cloud.bmp", 3, 3, 1, 1);
 			newObj.w = 3;
 			newObj.h = 3;
 			newObj.hitboxW = 0;
@@ -80,7 +79,7 @@ object *objectTemplate(objectType type)
 			newObj.ttl = 60*2;
 		break;
 		case OBJ_SMOKE:
-			tilesetLoad(newObj.tiles, "data/gfx/smoke.bmp", 5, 5, 1, 1);
+			tilesetLoad(video, newObj.tiles, "data/gfx/smoke.bmp", 5, 5, 1, 1);
 			newObj.w = 5;
 			newObj.h = 5;
 			newObj.hitboxW = 0;
@@ -100,29 +99,31 @@ object *objectTemplate(objectType type)
 	return objTemplateListHead->item;
 }
 
-void objectLoad(object *obj, objectType type)
+void objectLoad(const video *video, object *obj, objectType type)
 {
 	if (!obj)
 		return;
 
-	memcpy(obj, objectTemplate(type), sizeof(object));
+	memcpy(obj, objectTemplate(video, type), sizeof(object));
 
 	if (obj->type == OBJ_PLAYER)
 		playerLastAngle = obj->angle;
 }
 
-void objectItemDelete(void *item)
+void objectItemDelete(void *item, const void *data)
 {
 	object *obj = (object *)item;
+
+	(void)(data);
 
 	free(obj);
 }
 
-void objectTemplateItemDelete(void *item)
+void objectTemplateItemDelete(void *item, const void *video)
 {
 	object *obj = (object *)item;
 
-	tilesetUnload(obj->tiles);
+	tilesetUnload(video, obj->tiles);
 	free(obj->tiles);
 	obj->tiles = NULL;
 	free(obj);
@@ -164,7 +165,7 @@ int objectCollisionCheck(object *obj, object *obj2)
 	return 0;	
 }
 
-void objectLogic(object *obj)
+void objectLogic(const video *video, object *obj)
 {
 	if (!obj)
 		return;
@@ -239,7 +240,7 @@ void objectLogic(object *obj)
 			{
 				object newObj;
 
-				objectLoad(&newObj, OBJ_SMOKE);
+				objectLoad(video, &newObj, OBJ_SMOKE);
 				newObj.x = (obj->x + obj->w/2 - newObj.w/2) - 3 + (rand()%6);
 				newObj.y = (obj->y + obj->h/2 - newObj.h/2) - 3 + (rand()%6);
 
@@ -271,7 +272,7 @@ void objectLogic(object *obj)
 				playerPenaltyTimer = 0;
 				playerLastAngle = obj->angle;
 
-				objectLoad(&newObj, OBJ_MISSILE_BLUE);
+				objectLoad(video, &newObj, OBJ_MISSILE_BLUE);
 
 				newObj.x = FMODF(obj->x + radius * sineTable[angle], LEVEL_W);
 				newObj.y = FMODF(obj->y + radius * sineTable[(angle+90)%SINE_STEPS], LEVEL_H);
@@ -385,7 +386,7 @@ void objectLogic(object *obj)
 		{
 			object newObj;
 
-			objectLoad(&newObj, OBJ_CLOUD);
+			objectLoad(video, &newObj, OBJ_CLOUD);
 			newObj.x = obj->x + obj->w/2 - newObj.w/2;
 			newObj.y = obj->y + obj->h/2 - newObj.h/2;
 
@@ -398,7 +399,7 @@ void objectLogic(object *obj)
 		{
 			object newObj;
 
-			objectLoad(&newObj, OBJ_SMOKE);
+			objectLoad(video, &newObj, OBJ_SMOKE);
 			newObj.x = obj->x + obj->w/2 - newObj.w/2;
 			newObj.y = obj->y + obj->h/2 - newObj.h/2;
 
@@ -409,7 +410,7 @@ void objectLogic(object *obj)
 	}
 }
 
-void objectDraw(object *obj)
+void objectDraw(const video *video, object *obj)
 {
 	point camera;
 	point objRel;
@@ -438,17 +439,17 @@ void objectDraw(object *obj)
 		angle = (360 - obj->angle)/divisor;
 
 		if (obj->type == OBJ_CLOUD || obj->type == OBJ_SMOKE)
-			SDL_SetAlpha(obj->tiles->image, SDL_SRCALPHA, obj->ttl > 60 ? 255 : 256/60 * obj->ttl);
+			video->setAlpha(obj->tiles->image, obj->ttl > 60 ? 255 : 256/60 * obj->ttl);
 		else if (obj->type == OBJ_MISSILE_RED || obj->type == OBJ_MISSILE_BLUE || obj->type == OBJ_MISSILE_YELLOW)
-			SDL_SetAlpha(obj->tiles->image, SDL_SRCALPHA, obj->ttl > 30 ? 255 : 256/30 * obj->ttl);
+			video->setAlpha(obj->tiles->image,obj->ttl > 30 ? 255 : 256/30 * obj->ttl);
 
-		drawImage(obj->tiles->image, &obj->tiles->clip[angle%obj->tiles->length], screen, MOD((int)obj->x - camera.x, LEVEL_W), MOD((int)obj->y - camera.y, LEVEL_H));
+		video->drawImage(obj->tiles->image, &obj->tiles->clip[angle%obj->tiles->length], video->getScreenId(), MOD((int)obj->x - camera.x, LEVEL_W), MOD((int)obj->y - camera.y, LEVEL_H));
 	}
 	else if (obj->type == OBJ_MISSILE_RED || obj->type == OBJ_MISSILE_BLUE || obj->type == OBJ_MISSILE_YELLOW)
 	{
 		int x = (objRel.x + obj->w - 1) > LEVEL_W/2 ? 0 : (objRel.x >= SCREEN_W ? SCREEN_W - 7 : objRel.x);
 		int y = (objRel.y + obj->h - 1) > LEVEL_H/2 ? 0 : (objRel.y >= SCREEN_H ? SCREEN_H - 7 : objRel.y);
 
-		drawImage(marker.image, &marker.clip[obj->type - OBJ_MISSILE_RED], screen, x, y);
+		video->drawImage(marker.image, &marker.clip[obj->type - OBJ_MISSILE_RED], video->getScreenId(), x, y);
 	}
 }

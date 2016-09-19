@@ -1,17 +1,17 @@
 #ifndef _TILESET_H_
 #define _TILESET_H_
 
-#include <SDL.h>
+#include "video.h"
 
 typedef struct tileset
 {
-	SDL_Surface *image;
-	SDL_Rect *clip;
+	surfaceId image;
+	rect *clip;
 	int rowLen;
 	int length;
 } tileset;
 
-void tilesetLoad(tileset *tSet, char *fileName, int width, int height, int rowLen, int length);
-void tilesetUnload(tileset *tSet);
+void tilesetLoad(const video *, tileset *tSet, char *fileName, int width, int height, int rowLen, int length);
+void tilesetUnload(const video *, tileset *tSet);
 
 #endif /* _TILESET_H_ */

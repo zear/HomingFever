@@ -8,7 +8,7 @@
 #include "states.h"
 #include "video.h"
 
-int init()
+int init(const video *video)
 {
 	if (getConfigDir())
 	{
@@ -27,24 +27,38 @@ int init()
 		return -1;
 	}
 
-	fontLoad(&gameFontShadow, "data/gfx/fontBlack.bmp", 6, 11, 1, 4, NULL);
-	fontLoad(&gameFont, "data/gfx/font.bmp", 6, 11, 1, 4, &gameFontShadow);
+	fontLoad(video, &gameFontShadow, "data/gfx/fontBlack.bmp", 6, 11, 1, 4, NULL);
+	fontLoad(video, &gameFont, "data/gfx/font.bmp", 6, 11, 1, 4, &gameFontShadow);
 
 	return 0;
 }
 
-void deinit()
+void deinit(const video *video)
 {
-	fontUnload(&gameFont);
-	fontUnload(&gameFontShadow);
+	fontUnload(video, &gameFont);
+	fontUnload(video, &gameFontShadow);
 
 	deinitSDL();
 }
 
 int main(int argc, char *argv[])
 {
+	video video;
 	int i;
 	quit = 0;
+
+	video.getScreenId = getScreenIdSDL;
+	video.loadImage = loadImageSDL;
+	video.unloadImage = unloadImageSDL;
+	video.setAlpha = setAlphaSDL;
+	video.clipImage = clipImageSDL;
+	video.drawImage = drawImageSDL;
+	video.drawBackground = drawBackgroundSDL;
+	video.drawPoint = drawPointSDL;
+	video.fillRect = fillRectSDL;
+	video.frameLimiter = frameLimiterSDL;
+	video.flipScreen = flipScreenSDL;
+	video.clearScreen = clearScreenSDL;
 
 	for(i = 1; i < argc; i++)
 	{
@@ -81,7 +95,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if(init())
+	if(init(&video))
 	{
 		quit = 1;
 	}
@@ -90,16 +104,16 @@ int main(int argc, char *argv[])
 
 	while(!quit)
 	{
-		if(!frameLimiter())
+		if(!video.frameLimiter())
 		{
 			input();
-			logic();
-			draw();
+			logic(&video);
+			draw(&video);
 		}
 	}
 
 	storeConfig();
-	deinit();
+	deinit(&video);
 
 	return 0;
 }
