@@ -80,6 +80,16 @@ ifeq ($(PLATFORM), gcw0)
 	mksquashfs		$(RELEASEDIR) homingFever.opk -all-root -noappend -no-exports -no-xattrs
 endif
 
+ifeq ($(PLATFORM), rs90)
+	mkdir -p		$(RELEASEDIR)
+	cp $(TARGET)		$(RELEASEDIR)
+	cp -R data		$(RELEASEDIR)
+	cp platform/rs90/*	$(RELEASEDIR)
+	cp LICENSE.txt		$(RELEASEDIR)
+	cp README.md		$(RELEASEDIR)
+	mksquashfs		$(RELEASEDIR) homingFever.opk -all-root -noappend -no-exports -no-xattrs
+endif
+
 clean:
 	rm -Rf $(TARGET) $(OBJDIR) $(RELEASEDIR)
 
