@@ -203,8 +203,5 @@ void titleDraw()
 				textStep[i] = 0;
 			}
 		}
-
-
-/*		dTextCentered(&gameFont, "<-  Control: D-PAD  ->", SCREEN_H/2 + 50 + (gameFont.h + gameFont.leading) * 3, fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, SHADOW_DROP);*/
 	}
 }
