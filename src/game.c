@@ -375,7 +375,7 @@ void gameDraw()
 	dText(&gameFont, debugStr, gameFont.tracking + 1, SCREEN_H - (gameFont.h + gameFont.leading) * 2 - 1, ALPHA_OPAQUE, SHADOW_DROP);
 #endif
 
-	if (!bestTime && gameTime < 60*4)
+	if (!gamePaused && !bestTime && gameTime < 60*4)
 	{
 		dTextCentered(&gameFont, "MISSION:", SCREEN_H/2 + 30, ALPHA_OPAQUE, SHADOW_DROP);
 		dTextCentered(&gameFont, "Avoid missiles.", SCREEN_H/2 + 30 + (gameFont.h + gameFont.leading), ALPHA_OPAQUE, SHADOW_DROP);
