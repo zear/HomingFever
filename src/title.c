@@ -144,8 +144,8 @@ void titleDraw()
 		int j;
 		for (j = 0; j < SCREEN_H + 16; j += 16)
 		{
-			int x = i % 16;
-			int y = j % 16;
+			int x = titleTime % 16;
+			int y = (int)(50 * sineTable[(titleTime + 90) % SINE_STEPS]) % 16;
 
 			drawPoint(screen, i - x, j - y, getColor(0, 0, 224));
 		}
