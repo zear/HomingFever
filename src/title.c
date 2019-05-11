@@ -14,6 +14,8 @@ size_t textStep[TEXT_LINES];
 int showIntro = 1;
 int fadeOut;
 int fadeOutTimer;
+int titleTextFadeOut;
+int titleTextFadeOutTimer;
 object missile;
 
 void titleUnload()
@@ -30,7 +32,8 @@ void titleLoad()
 	memset(&textStep, 0, TEXT_LINES * sizeof(size_t));
 	fadeOut = 0;
 	fadeOutTimer = 0;
-
+	titleTextFadeOut = 0;
+	titleTextFadeOutTimer = 0;
 
 	objectLoad(&missile, OBJ_MISSILE_YELLOW);
 	missile.x = showIntro ? -missile.w : SCREEN_W;
@@ -78,12 +81,23 @@ void titleLogic()
 		}
 	}
 
+	if (missile.x >= SCREEN_W)
+		showIntro = 0;
+
 	if (fadeOut)
 	{
 		if (++fadeOutTimer == FADE_OUT_TIME)
 			programStateNew = STATE_GAME;
 	}
 
+	if (titleTextFadeOut)
+	{
+		if (titleTextFadeOutTimer <= FADE_OUT_TIME)
+			++titleTextFadeOutTimer;
+	}
+
+	if (textTimer == 60*8 - FADE_OUT_TIME)
+		titleTextFadeOut = 1;
 
 	if (titleTime >= 60)
 		missile.x += 2;
@@ -113,7 +127,7 @@ void titleDraw()
 
 	sprintf(text[3][0], "Author");
 	sprintf(text[3][1], "Artur \"zear\" Rojek");
-	sprintf(text[3][3], "(c) 2016");
+	sprintf(text[3][3], "(c) 2016 - 2019");
 
 	sprintf(text[4][0], "Special thanks");
 	sprintf(text[4][1], "GhostlyDeath");
@@ -140,19 +154,49 @@ void titleDraw()
 	if (titleTime >= 60)
 		drawImage(missile.tiles->image, &missile.tiles->clip[((360 - missile.angle)/22)%missile.tiles->length], screen, missile.x, missile.y);
 
-	dTextEmerging(&gameFont, "H O M I N G     F E V E R", fontX, 40, fontStep, fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, SHADOW_OUTLINE);
+	if (fadeOutTimer > titleTextFadeOutTimer)
+		titleTextFadeOutTimer = fadeOutTimer;
 
-	if (missile.x >= SCREEN_W)
+#if defined(SCREEN_SMALL)
+	if (!textIndex)
+	{
+		dTextEmerging(&gameFont, "H O M I N G     F E V E R", fontX, 40, fontStep,
+			titleTextFadeOutTimer ? 255 - 256/FADE_OUT_TIME * titleTextFadeOutTimer : ALPHA_OPAQUE, SHADOW_OUTLINE);
+	}
+#else
+	if (textIndex + 1 >= TEXT_PAGES)
+		fadeOutTimer = titleTextFadeOutTimer;
+
+	dTextEmerging(&gameFont, "H O M I N G     F E V E R", fontX, 40, fontStep, fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, SHADOW_OUTLINE);
+#endif
+
+	if (!showIntro && missile.x >= SCREEN_W)
 	{
 		int i;
 
-		showIntro = 0;
+		for (i = 0; i < TEXT_LINES; ++i)
+		{
+			if (!i || (textStep[i-1] > strlen(text[textIndex][i-1]) * (gameFont.w + gameFont.tracking)))
+				textStep[i] += 2;
+
+			dTextEmerging(&gameFont, text[textIndex][i], (SCREEN_W/2 - (strlen(text[textIndex][i]) * (gameFont.w + gameFont.tracking))/2), SCREEN_H/2 - ((gameFont.h + gameFont.leading)*TEXT_PAGES)/2 + (i ? (gameFont.h + gameFont.leading) * (i + 1): 0), textStep[i], titleTextFadeOutTimer ? 255 - 256/FADE_OUT_TIME * titleTextFadeOutTimer : ALPHA_OPAQUE, i ? SHADOW_DROP : SHADOW_OUTLINE);
+		}
+
 		++textTimer;
 
 		if (!(textTimer % (60*8)))
 		{
+			titleTextFadeOut = 0;
+			titleTextFadeOutTimer = 0;
+
 			textTimer = 0;
+
 			textIndex = (textIndex+1) % TEXT_PAGES;
+			if (!textIndex)
+			{
+				missile.x = -missile.w;
+				fadeOutTimer = 0;
+			}
 
 			for (i = 0; i < TEXT_LINES; ++i)
 			{
@@ -160,13 +204,6 @@ void titleDraw()
 			}
 		}
 
-		for (i = 0; i < TEXT_LINES; ++i)
-		{
-			if (!i || (textStep[i-1] > strlen(text[textIndex][i-1]) * (gameFont.w + gameFont.tracking)))
-				textStep[i] += 2;
-
-			dTextEmerging(&gameFont, text[textIndex][i], (SCREEN_W/2 - (strlen(text[textIndex][i]) * (gameFont.w + gameFont.tracking))/2), SCREEN_H/2 - ((gameFont.h + gameFont.leading)*TEXT_PAGES)/2 + (i ? (gameFont.h + gameFont.leading) * (i + 1): 0), textStep[i], fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, i ? SHADOW_DROP : SHADOW_OUTLINE);
-		}
 
 /*		dTextCentered(&gameFont, "<-  Control: D-PAD  ->", SCREEN_H/2 + 50 + (gameFont.h + gameFont.leading) * 3, fadeOutTimer ? 255 - 256/FADE_OUT_TIME * fadeOutTimer : ALPHA_OPAQUE, SHADOW_DROP);*/
 	}

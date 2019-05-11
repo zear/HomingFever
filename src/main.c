@@ -27,8 +27,13 @@ int init()
 		return -1;
 	}
 
+#if defined(SCREEN_SMALL)
+	fontLoad(&gameFontShadow, "data/gfx/fontSmallBlack.bmp", 8, 8, 0, 2, NULL);
+	fontLoad(&gameFont, "data/gfx/fontSmall.bmp", 8, 8, 0, 2, &gameFontShadow);
+#else
 	fontLoad(&gameFontShadow, "data/gfx/fontBlack.bmp", 6, 11, 1, 4, NULL);
 	fontLoad(&gameFont, "data/gfx/font.bmp", 6, 11, 1, 4, &gameFontShadow);
+#endif
 
 	return 0;
 }

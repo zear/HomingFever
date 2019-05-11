@@ -3,8 +3,13 @@
 
 #include <SDL.h>
 
+#if defined(SCREEN_SMALL)
+#define SCREEN_W		240
+#define SCREEN_H		160
+#else
 #define SCREEN_W		320
 #define SCREEN_H		240
+#endif
 #define SCREEN_BPP		16
 #define FPS			60
 

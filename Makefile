@@ -13,9 +13,19 @@ ifeq ($(PLATFORM), a320)
 	STRIP		:= /opt/opendingux-toolchain/usr/bin/mipsel-linux-strip
 	SYSROOT		:= $(shell $(CC) --print-sysroot)
 	CFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
-	CFLAGS		+= -DNO_FRAMELIMIT -DSCREEN_SCALE=1 -DHOME_DIR
+	CFLAGS		+= -DSCREEN_SCALE=1 -DHOME_DIR
 	LDFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --libs) -lm
 	TARGET		:= fever.dge
+endif
+
+ifeq ($(PLATFORM), rs90)
+	CC		:= /opt/rs90-toolchain/usr/bin/mipsel-linux-gcc
+	STRIP		:= /opt/rs90-toolchain/usr/bin/mipsel-linux-strip
+	SYSROOT		:= $(shell $(CC) --print-sysroot)
+	CFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
+	CFLAGS		+= -DNO_FRAMELIMIT -DSCREEN_SCALE=1 -DSCREEN_SMALL=1 -DHOME_DIR
+	LDFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --libs) -lm
+	RELEASEDIR	:= release
 endif
 
 ifeq ($(PLATFORM), mingw32)
