@@ -28,6 +28,14 @@ ifeq ($(PLATFORM), rs90)
 	RELEASEDIR	:= release
 endif
 
+ifeq ($(PLATFORM), bittboy)
+	CC		:= arm-linux-gcc
+	STRIP		:= arm-linux-strip
+	SYSROOT		:= $(shell $(CC) --print-sysroot)
+	CFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
+	LDFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --libs) -lm
+endif
+
 ifeq ($(PLATFORM), mingw32)
 	CC		:= i486-mingw32-gcc
 	STRIP		:= i486-mingw32-strip
