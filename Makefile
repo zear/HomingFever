@@ -33,6 +33,7 @@ ifeq ($(PLATFORM), bittboy)
 	STRIP		:= arm-linux-strip
 	SYSROOT		:= $(shell $(CC) --print-sysroot)
 	CFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
+	CFLAGS		+= -DSCREEN_SCALE=1
 	LDFLAGS		:= $(shell $(SYSROOT)/usr/bin/sdl-config --libs) -lm
 endif
 

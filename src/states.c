@@ -64,7 +64,7 @@ void logic()
 
 void draw()
 {
-	clearScreen();
+	//clearScreen();
 
 	switch (programStateActive)
 	{
