@@ -16,6 +16,9 @@ int init()
 		return -1;
 	}
 
+#if defined(PORT_RG353P)
+	fprintf(stderr, "[game] Loading configuration and score\n");
+#endif
 	getConfig();
 	getHiscore();
 
@@ -27,6 +30,9 @@ int init()
 		return -1;
 	}
 
+#if defined(PORT_RG353P)
+	fprintf(stderr, "[game] Loading fonts\n");
+#endif
 #if defined(SCREEN_SMALL)
 	fontLoad(&gameFontShadow, "data/gfx/fontSmallBlack.bmp", 8, 8, 0, 2, NULL);
 	fontLoad(&gameFont, "data/gfx/fontSmall.bmp", 8, 8, 0, 2, &gameFontShadow);
@@ -49,6 +55,10 @@ void deinit()
 int main(int argc, char *argv[])
 {
 	int i;
+#if defined(PORT_RG353P)
+	setvbuf(stdout, NULL, _IONBF, 0);
+	fprintf(stderr, "[game r4] Process started\n");
+#endif
 	quit = 0;
 
 	for(i = 1; i < argc; i++)
@@ -88,11 +98,15 @@ int main(int argc, char *argv[])
 
 	if(init())
 	{
-		quit = 1;
+		deinit();
+		return 1;
 	}
 
 	srand(time(NULL));
 
+#if defined(PORT_RG353P)
+	fprintf(stderr, "[game] Entering main loop\n");
+#endif
 	while(!quit)
 	{
 		if(!frameLimiter())

@@ -8,32 +8,64 @@
 SDL_Surface *screen;
 SDL_Surface *screenScaled;
 int screenScale;
+#if defined(PORT_RG353P)
+int fullscreen = 1;
+#else
 int fullscreen;
+#endif
 Uint32 curTicks;
 Uint32 lastTicks = 0;
 
 int initSDL()
 {
-	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK))
+#if defined(PORT_RG353P)
+	char driver[128];
+	fprintf(stderr, "[video] SDL video initialization starting\n");
+#endif
+	if(SDL_Init(SDL_INIT_VIDEO))
 	{
+		fprintf(stderr, "SDL initialization failed: %s\n", SDL_GetError());
 		return -1;
 	}
 
+#if defined(PORT_RG353P)
+	fprintf(stderr, "[video] SDL video initialized; driver=%s\n",
+		SDL_VideoDriverName(driver, sizeof(driver)) ? driver : "unknown");
+#endif
 	SDL_WM_SetCaption("Homing Fever", NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 
+#if defined(PORT_RG353P)
+	fprintf(stderr, "[video] Setting mode %dx%d, fullscreen=%d\n",
+		SCREEN_W * screenScale, SCREEN_H * screenScale, fullscreen);
+#endif
 	updateScale();
 
-	if(screen == NULL)
+	if(screen == NULL || screenScaled == NULL)
 	{
+		fprintf(stderr, "SDL video mode failed: %s\n", SDL_GetError());
 		return -1;
 	}
 
+#if defined(PORT_RG353P)
+	fprintf(stderr, "[video] Mode set; bpp=%d pitch=%d flags=0x%lx\n",
+		screenScaled->format->BitsPerPixel, screenScaled->pitch,
+		(unsigned long)screenScaled->flags);
+	fprintf(stderr, "[input] Opening joystick %d\n", joyNum);
+#endif
+	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK))
+	{
+		fprintf(stderr, "SDL joystick initialization failed: %s\n", SDL_GetError());
+		return -1;
+	}
 	if(SDL_NumJoysticks() > joyNum)
 	{
 		joyDevice = SDL_JoystickOpen(joyNum);
 	}
 
+#if defined(PORT_RG353P)
+	fprintf(stderr, "[input] Joystick %s\n", joyDevice ? "opened" : "unavailable");
+#endif
 	return 0;
 }
 
@@ -176,6 +208,11 @@ int frameLimiter()
 
 void flipScreen()
 {
+#if defined(PORT_RG353P)
+	static int firstFrame = 1;
+	if (firstFrame)
+		fprintf(stderr, "[video] Presenting first frame\n");
+#endif
 	switch (screenScale)
 	{
 		case 1:
@@ -186,6 +223,13 @@ void flipScreen()
 	}
 
 	SDL_Flip(screenScaled);
+#if defined(PORT_RG353P)
+	if (firstFrame)
+	{
+		fprintf(stderr, "[video] First frame presented\n");
+		firstFrame = 0;
+	}
+#endif
 
 	if (debugSlowMotion)
 	{

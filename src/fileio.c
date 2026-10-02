@@ -119,6 +119,7 @@ void getHiscore()
 	char save[FILE_MAX_PATH];
 	char header[] = HISCORE_HEADER;
 	uint8_t version;
+	uint16_t savedTime;
 
 	if (snprintf(save, FILE_MAX_PATH, "%s/score.dat", configDir) >= FILE_MAX_PATH)
 	{
@@ -130,11 +131,18 @@ void getHiscore()
 
 	if(f == NULL)
 	{
-		printf("Failed to open score file: \"%s\" for writing.\n", save);
+		printf("Failed to open score file: \"%s\" for reading.\n", save);
 		return;
 	}
 
-	fread(&header, sizeof(char), strlen(header), f);
+	if (fread(header, sizeof(char), strlen(header), f) != strlen(header) ||
+	    fread(&version, sizeof(version), 1, f) != 1 ||
+	    fread(&savedTime, sizeof(savedTime), 1, f) != 1)
+	{
+		printf("Incomplete score file: %s\n", save);
+		fclose(f);
+		return;
+	}
 
 	if (strcmp(header, HISCORE_HEADER))
 	{
@@ -143,8 +151,6 @@ void getHiscore()
 		return;
 	}
 
-	fread(&version, sizeof(uint8_t), 1, f);
-
 	if (version != HISCORE_FORMAT_VERSION)
 	{
 		fclose(f);
@@ -152,7 +158,7 @@ void getHiscore()
 		return;
 	}
 
-	fread(&bestTime, sizeof(uint16_t), 1, f);
+	bestTime = savedTime;
 
 	fclose(f);
 }

@@ -4,3 +4,5 @@
 obj/
 .*
 !/.gitignore
+*.aarch64
+release/

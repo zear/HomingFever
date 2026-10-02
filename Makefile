@@ -1,3 +1,11 @@
+ifeq ($(PLATFORM), rg353p)
+	CC := aarch64-linux-gnu-gcc
+	STRIP := aarch64-linux-gnu-strip
+	CFLAGS := -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -DSCREEN_SCALE=2 -DPORT_RG353P
+	LDFLAGS := -L/usr/lib/aarch64-linux-gnu -lSDL -lm
+	TARGET := fever.aarch64
+endif
+
 ifeq ($(PLATFORM), gcw0)
 	CC		:= /opt/gcw0-toolchain/usr/bin/mipsel-linux-gcc
 	STRIP		:= /opt/gcw0-toolchain/usr/bin/mipsel-linux-strip
@@ -43,7 +51,7 @@ CFLAGS		?= $(shell sdl-config --cflags) -DHOME_DIR
 LDFLAGS		?= $(shell sdl-config --libs) -lm
 TARGET		?= fever.elf
 SRCDIR		:= src
-OBJDIR		:= obj
+OBJDIR		:= obj/$(if $(PLATFORM),$(PLATFORM),native)/$(if $(DEBUG),debug,release)
 SRC		:= $(wildcard $(SRCDIR)/*.c)
 OBJ		:= $(SRC:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
